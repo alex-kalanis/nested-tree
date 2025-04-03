@@ -15,6 +15,10 @@ interface SourceInterface
 
     public function selectParent(int $nodeId, Support\Options $options) : ?int;
 
+    /**
+     * @param Support\Options $options
+     * @return int<0, max>
+     */
     public function selectCount(Support\Options $options) : int;
 
     /**

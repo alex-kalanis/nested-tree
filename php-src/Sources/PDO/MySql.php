@@ -115,6 +115,9 @@ class MySql extends PDO
         return (empty($parent_id)) ? ($this->settings->rootIsNull ? null : 0) : intval($parent_id);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function selectCount(Support\Options $options) : int
     {
         // create query SQL statement ------------------------------------------------------
