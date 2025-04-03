@@ -132,6 +132,24 @@ class ListingDbTest extends AbstractSimpleDbTests
     }
 
     /**
+     * Test listing the taxonomy data in hierarchy or flatten styles with many options.
+     */
+    public function testListTaxonomyOptionsFilterInMore() : void
+    {
+        $this->dataRefill();
+        $this->nestedSet->rebuild();
+
+        $options = new Options();
+        $options->unlimited = true;
+        $options->filterIdBy = [1,3,7,15, 'not-a-number', new \stdClass()];
+        $result = $this->nestedSet->listNodes($options);
+
+        // assert
+        $this->assertEquals(4, $result->count); // with children.
+        $this->assertCount(1, $result->items); // only root items because not flatten.
+    }
+
+    /**
      * Sub test of `testListTaxonomy()` but expect (assert) the children that will be generated from `NestedSet->listTaxonomyBuildTreeWithChildren()`.
      */
     public function testListTaxonomyExpectChildren() : void

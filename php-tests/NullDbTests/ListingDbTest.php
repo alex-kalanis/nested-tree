@@ -72,7 +72,7 @@ class ListingDbTest extends AbstractNullDbTests
     /**
      * Test listing the taxonomy data in hierarchy or flatten styles with many options.
      */
-    public function testListTaxonomyOptionsSearch() : void
+    public function testListTaxonomyOptionsSearchSimple() : void
     {
         $this->dataRefill();
         $this->nestedSet->rebuild();
@@ -94,6 +94,28 @@ class ListingDbTest extends AbstractNullDbTests
     /**
      * Test listing the taxonomy data in hierarchy or flatten styles with many options.
      */
+    public function testListTaxonomyOptionsSearchInEitherColumn() : void
+    {
+        $this->dataRefill();
+        $this->nestedSet->rebuild();
+
+        $options = new Options();
+        $options->unlimited = true;
+        $options->additionalColumns = ['ANY_VALUE(parent.name)', 'ANY_VALUE(child.name)'];
+        $optionSearch = new Search();
+        $optionSearch->columns = ['name', 'position'];
+        $optionSearch->value = '3.';
+        $options->search = $optionSearch;
+        $result = $this->nestedSet->listNodes($options);
+
+        // assert
+        $this->assertEquals(6, $result->count); // with children.
+        $this->assertCount(3, $result->items); // only root items because not flatten.
+    }
+
+    /**
+     * Test listing the taxonomy data in hierarchy or flatten styles with many options.
+     */
     public function testListTaxonomyOptionsFilterByMore() : void
     {
         $this->dataRefill();
@@ -102,6 +124,26 @@ class ListingDbTest extends AbstractNullDbTests
         $options = new Options();
         $options->unlimited = true;
         $options->filterIdBy = [1, 5, 6, 15, 99];
+        $options->joinChild = true;
+        $options->additionalColumns = ['ANY_VALUE(child.name) AS name'];
+        $result = $this->nestedSet->listNodes($options);
+
+        // assert
+        $this->assertEquals(4, $result->count); // with children.
+        $this->assertCount(4, $result->items); // only root items because not flatten.
+    }
+
+    /**
+     * Test listing the taxonomy data in hierarchy or flatten styles with many options.
+     */
+    public function testListTaxonomyOptionsFilterByMoreString() : void
+    {
+        $this->dataRefill();
+        $this->nestedSet->rebuild();
+
+        $options = new Options();
+        $options->unlimited = true;
+        $options->filterIdBy = [1, 5, 6, '15', '99', new \stdClass(), 'not-a-number'];
         $options->joinChild = true;
         $options->additionalColumns = ['ANY_VALUE(child.name) AS name'];
         $result = $this->nestedSet->listNodes($options);

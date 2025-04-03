@@ -2,6 +2,8 @@
 
 namespace Tests\SimpleDbTests;
 
+use Tests\MockNode;
+
 class CreateDbTest extends AbstractSimpleDbTests
 {
     /**
@@ -59,5 +61,28 @@ class CreateDbTest extends AbstractSimpleDbTests
         $this->assertEquals(13, $row[$this->settings->leftColumnName]);
         $this->assertEquals(14, $row[$this->settings->rightColumnName]);
         $this->assertEquals(3, $row[$this->settings->levelColumnName]);
+    }
+
+    public function testAdd() : void
+    {
+        $this->dataRefill();
+        $this->nestedSet->rebuild();
+        $node = $this->nestedSet->add(MockNode::create(99, 0, 536, 412, 65, 58465, [], 'Added One'));
+        $this->assertNotEmpty($node);
+        $this->nestedSet->rebuild();
+        $this->assertEquals(21, $node->id);
+
+        $sql = 'SELECT * FROM `' . $this->settings->tableName . '` WHERE `' . $this->settings->idColumnName . '` = :id';
+        $Sth = $this->database->prepare($sql);
+        $Sth->bindValue(':id', $node->id, \PDO::PARAM_INT);
+        $Sth->execute();
+        $row = $Sth->fetch();
+        $Sth->closeCursor();
+
+        // recalculated
+        $this->assertEquals(41, $row[$this->settings->leftColumnName]);
+        $this->assertEquals(42, $row[$this->settings->rightColumnName]);
+        $this->assertEquals(1, $row[$this->settings->levelColumnName]);
+        $this->assertEquals(4, $row[$this->settings->positionColumnName]);
     }
 }

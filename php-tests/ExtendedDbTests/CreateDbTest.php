@@ -100,6 +100,8 @@ class CreateDbTest extends AbstractExtendedDbTests
         $condition->bindValues = [':t_type' => 'category'];
         $this->assertEquals(4, $this->nestedSet->getNewPosition(4, $condition));
         $this->assertEquals(4, $this->nestedSet->getNewPosition(16, $condition));
+        $this->assertEquals(1, $this->nestedSet->getNewPosition(777, $condition)); // not known
+        $this->assertEquals(1, $this->nestedSet->getNewPosition(null, $condition)); // root with unknown
 
         $condition->bindValues = [':t_type' => 'product-category'];
         $newPosition = $this->nestedSet->getNewPosition(21, $condition);

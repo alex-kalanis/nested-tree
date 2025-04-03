@@ -3,8 +3,8 @@
 namespace Tests\BasicTests;
 
 use kalanis\nested_tree\NestedSet;
-use kalanis\nested_tree\Sources\SourceInterface;
-use kalanis\nested_tree\Support;
+use kalanis\nested_tree\Support\ColumnsTrait;
+use kalanis\nested_tree\Support\TableSettings;
 use Tests\CommonTestClass;
 use Tests\MockNode;
 use Tests\NestedSetExtends;
@@ -140,82 +140,27 @@ class OperationsTest extends CommonTestClass
         $row = next($array);
         $this->assertFalse($row);
     }
+
+    public function testMoveNone(): void
+    {
+        $this->assertFalse($this->nestedSet->move(0, 99));
+    }
+
+    public function testColumnTranslate() : void
+    {
+        $ts = new TableSettings();
+        $l = new XColumn();
+        $this->assertEquals('id', $l->translate($ts, 'id'));
+        $this->assertEquals('parent_id', $l->translate($ts, 'parentId'));
+    }
 }
 
-class MockDataSource implements SourceInterface
+class XColumn
 {
-    public function selectLastPosition(?int $parentNodeId, ?Support\Conditions $where) : ?int
-    {
-        return empty($parentNodeId) ? 0 : 3;
-    }
+    use ColumnsTrait;
 
-    public function selectSimple(Support\Options $options) : array
+    public function translate(TableSettings $settings, string $s) : string
     {
-        return [
-            MockNode::create(1, 0, 1, 2, 1, 1),
-            MockNode::create(2, 0, 3, 4, 1, 2),
-            MockNode::create(3, 0, 5, 6, 1, 3),
-            MockNode::create(4, 0, 7, 8, 1, 4),
-        ];
-    }
-
-    public function selectParent(int $nodeId, Support\Options $options) : ?int
-    {
-        return 22;
-    }
-
-    public function selectCount(Support\Options $options) : int
-    {
-        return 75;
-    }
-
-    public function selectLimited(Support\Options $options) : array
-    {
-        return [
-            MockNode::create(1, 0, 1, 2, 1, 1),
-            MockNode::create(2, 0, 3, 4, 1, 2),
-            MockNode::create(3, 0, 5, 6, 1, 3),
-            MockNode::create(4, 0, 7, 8, 1, 4),
-        ];
-    }
-
-    public function selectWithParents(Support\Options $options) : array
-    {
-        return [
-            MockNode::create(1, 0, 1, 2, 1, 1),
-            MockNode::create(2, 0, 3, 4, 1, 2),
-            MockNode::create(3, 0, 5, 6, 1, 3),
-            MockNode::create(4, 0, 7, 8, 1, 4),
-        ];
-    }
-
-    public function add(Support\Node $node, ?Support\Conditions $where) : Support\Node
-    {
-        return $node;
-    }
-
-    public function updateData(Support\Node $node, ?Support\Conditions $where) : bool
-    {
-        return !empty($node->id);
-    }
-
-    public function updateChildrenParent(?int $parentId, int $nodeId, ?Support\Conditions $where) : bool
-    {
-        return !empty($parentId);
-    }
-
-    public function updateLeftRightPos(Support\Node $row, ?Support\Conditions $where) : bool
-    {
-        return !empty($row->parentId);
-    }
-
-    public function deleteSolo(int $nodeId, ?Support\Conditions $where) : bool
-    {
-        return empty($nodeId);
-    }
-
-    public function deleteWithChildren(Support\Node $row, ?Support\Conditions $where) : bool
-    {
-        return empty($row->id);
+        return $this->translateColumn($settings, $s);
     }
 }

@@ -53,10 +53,31 @@ class DeleteDbTest extends AbstractSimpleDbTests
         $deleteResult = $this->nestedSet->deletePullUpChildren(9);
         $this->nestedSet->rebuild();
         $resultAfterDelete = $this->nestedSet->listNodesFlatten($options);
-        unset($options);
 
         $this->assertCount(20, $resultBeforeDelete);
         $this->assertTrue($deleteResult);
         $this->assertCount(19, $resultAfterDelete);
+    }
+
+    public function testDeleteConditions() : void
+    {
+        $this->dataRefill();
+        $this->nestedSet->rebuild();
+
+        $options = new Support\Options();
+        $options->unlimited = true;
+        $options->additionalColumns = ['parent.name'];
+        $conditions = new Support\Conditions();
+        $conditions->query = 'parent.name LIKE :my_name';
+        $conditions->bindValues = [':my_name' => '14.1.%'];
+        $options->where = $conditions;
+        $resultBeforeDelete = $this->nestedSet->listNodesFlatten($options);
+        $deleteResult = $this->nestedSet->deletePullUpChildren(9, $options);
+        $this->nestedSet->rebuild();
+        $resultAfterDelete = $this->nestedSet->listNodesFlatten($options);
+
+        $this->assertCount(0, $resultBeforeDelete);
+        $this->assertTrue($deleteResult);
+        $this->assertCount(0, $resultAfterDelete);
     }
 }

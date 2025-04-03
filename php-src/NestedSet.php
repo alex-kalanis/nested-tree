@@ -21,6 +21,9 @@ class NestedSet
     /**
      * Add new record to structure
      * The position is set to end
+     *
+     * Note: Properties of tree will be skipped and filled later. For their change use different methods.
+     *
      * @param Support\Node $node
      * @param Support\Options $options
      * @return Support\Node
@@ -34,6 +37,10 @@ class NestedSet
 
     /**
      * Update current record in structure
+     *
+     * Note: Properties with Null value will be skipped and stay same in the storage.
+     * Note: Properties of tree will be skipped too. For their change use different methods.
+     *
      * @param Support\Node $node
      * @param Support\Options $options
      * @return bool
@@ -44,11 +51,59 @@ class NestedSet
     }
 
     /**
+     * Change parent node to different one; put the content on the last position
+     * Parent id can be either some number for existing one or 0/null for root
+     *
+     * Return true for pass, false otherwise
+     *
+     * @param int<1, max> $nodeId
+     * @param int<0, max>|null $newParentId
+     * @param Support\Options $options
+     * @return bool
+     */
+    public function changeParent(int $nodeId, ?int $newParentId, Support\Options $options = new Support\Options()) : bool
+    {
+        if (!$this->isNewParentOutsideCurrentNodeTree($nodeId, $newParentId, $options)) {
+            return false;
+        }
+        $newPosition = $this->getNewPosition($newParentId, $options->where);
+
+        return $this->source->updateNodeParent($nodeId, $newParentId, $newPosition, $options->where);
+    }
+
+    /**
+     * Move node to new position
+     *
+     * @param int<1, max> $nodeId
+     * @param int<0, max> $newPosition
+     * @param Support\Options $options
+     * @return bool
+     */
+    public function move(int $nodeId, int $newPosition, Support\Options $options = new Support\Options()) : bool
+    {
+        $parentId = $this->source->selectParent($nodeId, $options);
+        // get single node
+        $customOptions = new Support\Options();
+        $customOptions->currentId = $nodeId;
+        $nodes = $this->source->selectSimple($customOptions);
+        $node = reset($nodes);
+        if (empty($node)) {
+            return false;
+        }
+        // move it
+        if ($this->source->makeHole($parentId, $newPosition, $newPosition > $node->position, $options->where)) {
+            return $this->source->updateNodeParent($nodeId, $parentId, $newPosition, $options->where);
+        }
+
+        return false;
+    }
+
+    /**
      * Delete the selected taxonomy ID and pull children's parent ID to the same as selected one.<br>
      * Example: selected taxonomy ID is 4, its parent ID is 2. This method will be pull all children that has parent ID = 4 to 2 and delete the taxonomy ID 4.<br>
      * Always run <code>$NestedSet->rebuild()</code> after insert, update, delete to rebuild the correctly level, left, right data.
      *
-     * @param int $nodeId The selected taxonomy ID.
+     * @param int<1, max> $nodeId The selected taxonomy ID.
      * @param Support\Options $options Where array structure will be like this.
      * @return bool Return true on success, false for otherwise.
      */
@@ -57,7 +112,7 @@ class NestedSet
         // get this taxonomy parent id
         $parentNodeId = $this->source->selectParent($nodeId, $options);
         // update this children first level.
-        $this->source->updateChildrenParent($parentNodeId, $nodeId, $options->where);
+        $this->source->updateChildrenParent($nodeId, $parentNodeId, $options->where);
 
         return $this->source->deleteSolo($nodeId, $options->where);
     }
@@ -68,7 +123,7 @@ class NestedSet
      *
      * The columns `left`, `right` must have been built before using this method, otherwise the result will be incorrect.
      *
-     * @param int $nodeId The taxonomy ID to delete.
+     * @param int<1, max> $nodeId The taxonomy ID to delete.
      * @param Support\Options $options Where array structure will be like this.
      * @return int|null Return number on success, return null for otherwise.
      */
@@ -97,9 +152,9 @@ class NestedSet
     /**
      * Get new position for taxonomy in the selected parent.
      *
-     * @param int|null $parentId The parent ID. If root, set this to 0 or null.
+     * @param int<0, max>|null $parentId The parent ID. If root, set this to 0 or null.
      * @param Support\Conditions|null $where Where array structure will be like this.
-     * @return int Return the new position in the same parent.<br>
+     * @return int<1, max> Return the new position in the same parent.<br>
      *              WARNING! If there are no results or the results according to the conditions cannot be found. It always returns 1.
      */
     public function getNewPosition(?int $parentId, ?Support\Conditions $where = null) : int
@@ -165,8 +220,8 @@ class NestedSet
      * Rebuild children into array.
      *
      * @internal This method was called from `getTreeWithChildren()`.
-     * @param array<int, Support\Node> $array The array data that was get while running `getTreeWithChildren()`. This data contains 'children' object property but empty, it will be added here.
-     * @return array<int, Support\Node> Return added correct id of the children to data.
+     * @param array<int<0, max>, Support\Node> $array The array data that was get while running `getTreeWithChildren()`. This data contains 'children' object property but empty, it will be added here.
+     * @return array<int<0, max>, Support\Node> Return added correct id of the children to data.
      */
     protected function getTreeRebuildChildren(array $array) : array
     {
@@ -251,7 +306,7 @@ class NestedSet
      * @since 1.0
      * @internal This method was called from `rebuild()`.
      * @param Support\Options $options Where array structure will be like this.
-     * @return array<int, Support\Node> Return formatted array structure as seen in example of docblock.
+     * @return array<int<0, max>, Support\Node> Return formatted array structure as seen in example of docblock.
      */
     protected function getTreeWithChildren(Support\Options $options = new Support\Options()) : array
     {
@@ -269,8 +324,8 @@ class NestedSet
      * Assume that you editing 1.1.1 and its parent is 1.1. Now you change its parent to 1.1.1.1.1 which is under its children.<br>
      * The parent of 1.1.1 must be root, Root 1, 1.1 and never go under that.
      *
-     * @param int $currentNodeId The taxonomy ID that is changing the parent.
-     * @param int|null $newParentId The selected parent ID to check.
+     * @param int<1, max> $currentNodeId The taxonomy ID that is changing the parent.
+     * @param int<0, max>|null $newParentId The selected parent ID to check.
      * @param Support\Options $options Where array structure will be like this.
      * @return bool Return `false` if its parent is under its children (INCORRECT changes).<br>
      *              Return `false` if search result was not found (INCORRECT changes).<br>
@@ -330,10 +385,6 @@ class NestedSet
      */
     protected function listNodesBuildTreeWithChildren(Support\Result $result, Support\Options $options) : Support\Result
     {
-        if ($options->listFlattened) {
-            return $result;
-        }
-
         $items = [];
         foreach ($result->items as &$item) {
             $items[$item->parentId][] = $item;
@@ -368,19 +419,8 @@ class NestedSet
     public function listNodesFlatten(Support\Options $options = new Support\Options()) : Support\Result
     {
         $options->listFlattened = true;
-        $result = $this->listNodes($options);
 
-        if (empty($result->count)) {
-            if (
-                !empty($result->items)
-            ) {
-                $result->count = count($result->items);
-            }
-
-            return $result;
-        }
-
-        return $result;
+        return $this->listNodes($options);
     }
 
     /**
@@ -422,10 +462,10 @@ class NestedSet
      * This method modify variables via argument reference without return anything.
      *
      * @internal This method was called from `rebuild()`.
-     * @param array<int, Support\Node> $array The data array, will be call as reference and modify its value.
-     * @param int $id The ID of taxonomy.
-     * @param int $level The level of taxonomy.
-     * @param int $n The tally or count number, will be call as reference and modify its value.
+     * @param array<int<0, max>, Support\Node> $array The data array, will be call as reference and modify its value.
+     * @param int<0, max> $id The ID of taxonomy.
+     * @param int<0, max> $level The level of taxonomy.
+     * @param int<0, max> $n The tally or count number, will be call as reference and modify its value.
      */
     protected function rebuildGenerateTreeData(array &$array, int $id, int $level, int &$n) : void
     {
@@ -448,9 +488,9 @@ class NestedSet
      * This method modify variables via argument reference without return anything.
      *
      * @internal This method was called from `rebuild()`.
-     * @param array<int, Support\Node> $array The data array, will be call as reference and modify its value.
-     * @param int $id The ID of taxonomy.
-     * @param int $n The position number, will be call as reference and modify its value.
+     * @param array<int<0, max>, Support\Node> $array The data array, will be call as reference and modify its value.
+     * @param int<0, max> $id The ID of taxonomy.
+     * @param int<0, max> $n The position number, will be call as reference and modify its value.
      */
     protected function rebuildGeneratePositionData(array &$array, int $id, int &$n) : void
     {
