@@ -412,14 +412,14 @@ class MySql extends PDO
         $pairs = [];
         foreach ((array) $node as $column => $value) {
             if (!is_numeric($column) && !in_array($column, [
-                    $this->settings->idColumnName,
-                ])) {
+                $this->settings->idColumnName,
+            ])) {
                 $lookup['`' . $column . '`'] = ':' . $column;
                 $pairs[':' . $column] = $value;
             }
         }
-        $sql .= '(' . implode(',', array_keys($lookup)). ')';
-        $sql .= 'VALUES (' . implode(',', array_keys($pairs)). ')';
+        $sql .= '(' . implode(',', array_keys($lookup)) . ')';
+        $sql .= 'VALUES (' . implode(',', array_keys($pairs)) . ')';
 
         $Sth = $this->pdo->prepare($sql);
 
@@ -452,6 +452,7 @@ class MySql extends PDO
         if (is_null($node)) {
             throw new \LogicException('Node not found in database');
         }
+
         return $node;
     }
 
@@ -462,14 +463,14 @@ class MySql extends PDO
         $pairs = [];
         foreach ((array) $node as $column => $value) {
             if (!is_numeric($column) && !in_array($column, [
-                    $this->settings->idColumnName,
-                    $this->settings->parentIdColumnName,
-                    $this->settings->leftColumnName,
-                    $this->settings->rightColumnName,
-                    $this->settings->levelColumnName,
-                    $this->settings->positionColumnName,
-                ])) {
-                $sql .= ' `' . $column . '` = :' . $column. ',';
+                $this->settings->idColumnName,
+                $this->settings->parentIdColumnName,
+                $this->settings->leftColumnName,
+                $this->settings->rightColumnName,
+                $this->settings->levelColumnName,
+                $this->settings->positionColumnName,
+            ])) {
+                $sql .= ' `' . $column . '` = :' . $column . ',';
                 $pairs[':' . $column] = $value;
             }
         }
@@ -493,6 +494,7 @@ class MySql extends PDO
 
         $execute = $Sth->execute();
         $Sth->closeCursor();
+
         return $execute;
     }
 
@@ -520,6 +522,7 @@ class MySql extends PDO
 
         $execute = $Sth->execute();
         $Sth->closeCursor();
+
         return $execute;
     }
 
@@ -552,6 +555,7 @@ class MySql extends PDO
 
         $execute = $Sth->execute();
         $Sth->closeCursor();
+
         return $execute;
     }
 
@@ -572,6 +576,7 @@ class MySql extends PDO
 
         $execute = $Sth->execute();
         $Sth->closeCursor();
+
         return $execute;
     }
 
@@ -593,6 +598,7 @@ class MySql extends PDO
 
         $execute = $Sth->execute();
         $Sth->closeCursor();
+
         return $execute;
     }
 }

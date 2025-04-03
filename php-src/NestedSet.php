@@ -3,8 +3,6 @@
 namespace kalanis\nested_tree;
 
 use kalanis\nested_tree\Sources\SourceInterface;
-use kalanis\nested_tree\Support\Node;
-use kalanis\nested_tree\Support\TableSettings;
 
 /**
  * Nested Set class for build left, right, level data.
@@ -15,15 +13,15 @@ class NestedSet
 {
     public function __construct(
         protected readonly SourceInterface $source,
-        protected readonly Node $nodeBase = new Node(),
-        protected readonly TableSettings $tableSettings = new TableSettings(),
+        protected readonly Support\Node $nodeBase = new Support\Node(),
+        protected readonly Support\TableSettings $tableSettings = new Support\TableSettings(),
     ) {
     }
 
     /**
      * Add new record to structure
      * The position is set to end
-     * @param Node $node
+     * @param Support\Node $node
      * @param Support\Options $options
      * @return Support\Node
      */
@@ -36,7 +34,7 @@ class NestedSet
 
     /**
      * Update current record in structure
-     * @param Node $node
+     * @param Support\Node $node
      * @param Support\Options $options
      * @return bool
      */
@@ -168,8 +166,8 @@ class NestedSet
      * Rebuild children into array.
      *
      * @internal This method was called from `getTreeWithChildren()`.
-     * @param array<int, Node> $array The array data that was get while running `getTreeWithChildren()`. This data contains 'children' object property but empty, it will be added here.
-     * @return array<int, Node> Return added correct id of the children to data.
+     * @param array<int, Support\Node> $array The array data that was get while running `getTreeWithChildren()`. This data contains 'children' object property but empty, it will be added here.
+     * @return array<int, Support\Node> Return added correct id of the children to data.
      */
     protected function getTreeRebuildChildren(array $array) : array
     {
@@ -254,7 +252,7 @@ class NestedSet
      * @since 1.0
      * @internal This method was called from `rebuild()`.
      * @param Support\Options $options Where array structure will be like this.
-     * @return array<int, Node> Return formatted array structure as seen in example of docblock.
+     * @return array<int, Support\Node> Return formatted array structure as seen in example of docblock.
      */
     protected function getTreeWithChildren(Support\Options $options = new Support\Options()) : array
     {
@@ -347,7 +345,7 @@ class NestedSet
             foreach ($result->items as $row) {
                 if (isset($items[$row->id])) {
                     $row->childrenNodes = $items[$row->id];
-                    $row->childrenIds = array_map(fn (Node $node) => $node->id, $row->childrenNodes);
+                    $row->childrenIds = array_map(fn (Support\Node $node) => $node->id, $row->childrenNodes);
                 }
             }
 
@@ -388,7 +386,7 @@ class NestedSet
 
     /**
      * Rebuilds the tree data and save it to the database.<br>
-     * This will be rebuild the level, left, right values.
+     * This will rebuild the level, left, right values.
      *
      * The columns `left`, `right` must have been built before using this method, otherwise the result will be incorrect.
      *
@@ -420,12 +418,12 @@ class NestedSet
 
     /**
      * Rebuild taxonomy level, left, right for tree data.<br>
-     * This method will be alter the $array value. It will be set level, left, right value.
+     * This method will alter the $array value. It will be set level, left, right value.
      *
      * This method modify variables via argument reference without return anything.
      *
      * @internal This method was called from `rebuild()`.
-     * @param array<int, Node> $array The data array, will be call as reference and modify its value.
+     * @param array<int, Support\Node> $array The data array, will be call as reference and modify its value.
      * @param int $id The ID of taxonomy.
      * @param int $level The level of taxonomy.
      * @param int $n The tally or count number, will be call as reference and modify its value.
@@ -446,12 +444,12 @@ class NestedSet
 
     /**
      * Rebuild taxonomy positions for tree data.<br>
-     * This method will be alter the $array value. It will set position value.
+     * This method will alter the $array value. It will set position value.
      *
      * This method modify variables via argument reference without return anything.
      *
      * @internal This method was called from `rebuild()`.
-     * @param array<int, Node> $array The data array, will be call as reference and modify its value.
+     * @param array<int, Support\Node> $array The data array, will be call as reference and modify its value.
      * @param int $id The ID of taxonomy.
      * @param int $n The position number, will be call as reference and modify its value.
      */

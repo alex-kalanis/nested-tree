@@ -43,8 +43,7 @@ class CommonTestClass extends TestCase
         bool $alsoChildren = false,
         bool $checkLeftRight = false,
         bool $checkPosition = false,
-    ) : bool
-    {
+    ) : bool {
         return (
             $storedNode->id === $mockNode->id
             && $storedNode->parentId === $mockNode->parentId

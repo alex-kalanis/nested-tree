@@ -27,9 +27,9 @@ interface SourceInterface
      */
     public function selectWithParents(Support\Options $options) : array;
 
-    public function add(Support\Node $node, ?Support\Conditions $where): Support\Node;
+    public function add(Support\Node $node, ?Support\Conditions $where) : Support\Node;
 
-    public function updateData(Support\Node $node, ?Support\Conditions $where): bool;
+    public function updateData(Support\Node $node, ?Support\Conditions $where) : bool;
 
     public function updateChildrenParent(?int $parentId, int $nodeId, ?Support\Conditions $where) : bool;
 

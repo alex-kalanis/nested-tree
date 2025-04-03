@@ -71,7 +71,7 @@ jobs:
                   php-version: ${{ matrix.php }}
                   coverage: none
             - run: composer install --no-progress
-            - run: vendor/bin/phpstan analyse -c phpstan.${{ matrix.php }}.neon
+            - run: vendor/bin/phpstan analyse -c phpstan.neon
 
     composer_dependencies:
         runs-on: ubuntu-latest
@@ -86,4 +86,4 @@ jobs:
                   php-version: ${{ matrix.php }}
                   coverage: none
             - run: composer install --no-progress
-            - run: vendor/bin/composer-dependency-analyser --config=composer-dependency-analyser.php
+            - run: vendor/bin/composer-dependency-analyser
