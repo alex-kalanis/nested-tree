@@ -28,9 +28,9 @@ class NestedSet
     public function add(Support\Node $node, Support\Options $options = new Support\Options()) : Support\Node
     {
         $node->position = $this->getNewPosition($node->parentId);
+
         return $this->source->add($node, $options->where);
     }
-
 
     /**
      * Update current record in structure
@@ -42,7 +42,6 @@ class NestedSet
     {
         return $this->source->updateData($node, $options->where);
     }
-
 
     /**
      * Delete the selected taxonomy ID and pull children's parent ID to the same as selected one.<br>
@@ -408,7 +407,7 @@ class NestedSet
         $this->rebuildGenerateTreeData($data, 0, 0, $n);
 
         foreach ($data as $id => $row) {
-            if ('0' === $id) {
+            if (0 === $id) {
                 continue;
             }
 

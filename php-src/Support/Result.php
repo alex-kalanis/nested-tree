@@ -16,6 +16,9 @@ class Result implements \Countable, \IteratorAggregate
      */
     public array $items = [];
 
+    /**
+     * @return int<0, max>
+     */
     public function count() : int
     {
         return $this->count;

@@ -3,6 +3,7 @@
 namespace kalanis\nested_tree\Sources\PDO;
 
 use kalanis\nested_tree\Support;
+use PDO as base_pdo;
 
 class MySql extends PDO
 {
@@ -19,9 +20,9 @@ class MySql extends PDO
         $Sth = $this->pdo->prepare($sql);
 
         if (null === $parentNodeId) {
-            $Sth->bindValue(':parent_id', null, \PDO::PARAM_NULL);
+            $Sth->bindValue(':parent_id', null, base_pdo::PARAM_NULL);
         } else {
-            $Sth->bindValue(':parent_id', $parentNodeId, \PDO::PARAM_INT);
+            $Sth->bindValue(':parent_id', $parentNodeId, base_pdo::PARAM_INT);
         }
 
         if (!empty($where->bindValues)) {
@@ -60,13 +61,13 @@ class MySql extends PDO
             }
         }
         $sql .= ' FROM `' . $this->settings->tableName . '` node';
-        if (!empty($options->where?->query)) {
+        if (!empty($options->where->query)) {
             $sql .= ' WHERE ' . $options->where->query;
         }
         $sql .= ' ORDER BY `' . $this->settings->positionColumnName . '` ASC';
         $Sth = $this->pdo->prepare($sql);
 
-        if (!empty($options->where?->bindValues)) {
+        if (!empty($options->where->bindValues)) {
             foreach ($options->where->bindValues as $bindName => $bindValue) {
                 $Sth->bindValue($bindName, $bindValue);
             }
@@ -94,13 +95,13 @@ class MySql extends PDO
         }
         $sql .= ' FROM `' . $this->settings->tableName . '` node';
         $sql .= ' WHERE `' . $this->settings->idColumnName . '` = :taxonomy_id';
-        if (!empty($options->where?->query)) {
+        if (!empty($options->where->query)) {
             $sql .= ' AND ' . $options->where->query;
         }
         $Sth = $this->pdo->prepare($sql);
 
-        $Sth->bindValue(':taxonomy_id', $nodeId, \PDO::PARAM_INT);
-        if (!empty($options->where?->bindValues)) {
+        $Sth->bindValue(':taxonomy_id', $nodeId, base_pdo::PARAM_INT);
+        if (!empty($options->where->bindValues)) {
             foreach ($options->where->bindValues as $bindName => $bindValue) {
                 $Sth->bindValue($bindName, $bindValue);
             }
@@ -165,8 +166,8 @@ class MySql extends PDO
         }
 
         if (
-            !empty($options->search?->columns)
-            && !empty($options->search?->value)
+            !empty($options->search->columns)
+            && !empty($options->search->value)
         ) {
             // if found search array with its columns and search value.
             $sql .= ' AND (';
@@ -182,7 +183,7 @@ class MySql extends PDO
         }
 
         if (
-            !empty($options->where?->query)
+            !empty($options->where->query)
         ) {
             $sql .= ' AND ' . $options->where->query;
         }
@@ -268,8 +269,8 @@ class MySql extends PDO
         }
 
         if (
-            !empty($options->search?->columns)
-            && !empty($options->search?->value)
+            !empty($options->search->columns)
+            && !empty($options->search->value)
         ) {
             // if found search array with its columns and search value.
             $sql .= ' AND (';
@@ -285,7 +286,7 @@ class MySql extends PDO
         }
 
         if (
-            !empty($options->where?->query)
+            !empty($options->where->query)
         ) {
             $sql .= ' AND ' . $options->where->query;
         }
@@ -353,8 +354,8 @@ class MySql extends PDO
         }
 
         if (
-            !empty($options->search?->columns)
-            && !empty($options->search?->value)
+            !empty($options->search->columns)
+            && !empty($options->search->value)
         ) {
             $sql .= ' AND (';
             $array_keys = array_keys($options->search->columns);
@@ -369,7 +370,7 @@ class MySql extends PDO
         }
 
         if (
-            !empty($options->where?->query)
+            !empty($options->where->query)
         ) {
             $sql .= ' AND ' . $options->where->query;
         }
@@ -379,10 +380,10 @@ class MySql extends PDO
 
         $Sth = $this->pdo->prepare($sql);
         if (!is_null($options->currentId)) {
-            $Sth->bindValue(':filter_taxonomy_id', $options->currentId, \PDO::PARAM_INT);
+            $Sth->bindValue(':filter_taxonomy_id', $options->currentId, base_pdo::PARAM_INT);
         }
         if (!empty($options->search?->value)) {
-            $Sth->bindValue(':search', '%' . $options->search->value . '%', \PDO::PARAM_STR);
+            $Sth->bindValue(':search', '%' . $options->search->value . '%', base_pdo::PARAM_STR);
         }
         if (!empty($options->where?->bindValues)) {
             foreach ($options->where->bindValues as $placeholder => $value) {
@@ -476,17 +477,17 @@ class MySql extends PDO
         }
         $sql .= ' WHERE `' . $this->settings->idColumnName . '` = :id';
 
-        if (!empty($where?->query)) {
+        if (!empty($where->query)) {
             $sql .= ' AND ' . $where->query;
         }
 
         $Sth = $this->pdo->prepare($sql);
-        $Sth->bindValue(':id', $node->id, \PDO::PARAM_INT);
+        $Sth->bindValue(':id', $node->id, base_pdo::PARAM_INT);
 
         foreach ($pairs as $column => $value) {
             $Sth->bindValue($column, $value);
         }
-        if (!empty($where?->bindValues)) {
+        if (!empty($where->bindValues)) {
             foreach ($where->bindValues as $bindName => $bindValue) {
                 $Sth->bindValue($bindName, $bindValue);
             }
@@ -503,18 +504,18 @@ class MySql extends PDO
         $sql = 'UPDATE `' . $this->settings->tableName . '`';
         $sql .= ' SET `' . $this->settings->parentIdColumnName . '` = :parent_id';
         $sql .= ' WHERE `' . $this->settings->parentIdColumnName . '` = :taxonomy_id';
-        if (!empty($where?->query)) {
+        if (!empty($where->query)) {
             $sql .= ' AND ' . $where->query;
         }
         $Sth = $this->pdo->prepare($sql);
 
         if (is_null($parentId)) {
-            $Sth->bindValue(':parent_id', null, \PDO::PARAM_NULL);
+            $Sth->bindValue(':parent_id', null, base_pdo::PARAM_NULL);
         } else {
-            $Sth->bindValue(':parent_id', $parentId, \PDO::PARAM_INT);
+            $Sth->bindValue(':parent_id', $parentId, base_pdo::PARAM_INT);
         }
-        $Sth->bindValue(':taxonomy_id', $nodeId, \PDO::PARAM_INT);
-        if (!empty($where?->bindValues)) {
+        $Sth->bindValue(':taxonomy_id', $nodeId, base_pdo::PARAM_INT);
+        if (!empty($where->bindValues)) {
             foreach ($where->bindValues as $bindName => $bindValue) {
                 $Sth->bindValue($bindName, $bindValue);
             }
@@ -536,18 +537,18 @@ class MySql extends PDO
         $sql .= ' `' . $this->settings->positionColumnName . '` = :pos';
         $sql .= ' WHERE `' . $this->settings->idColumnName . '` = :id';
 
-        if (!empty($where?->query)) {
+        if (!empty($where->query)) {
             $sql .= ' AND ' . $where->query;
         }
 
         $Sth = $this->pdo->prepare($sql);
-        $Sth->bindValue(':level', $row->level, \PDO::PARAM_INT);
-        $Sth->bindValue(':left', $row->left, \PDO::PARAM_INT);
-        $Sth->bindValue(':right', $row->right, \PDO::PARAM_INT);
-        $Sth->bindValue(':pos', $row->position, \PDO::PARAM_INT);
-        $Sth->bindValue(':id', $row->id, \PDO::PARAM_INT);
+        $Sth->bindValue(':level', $row->level, base_pdo::PARAM_INT);
+        $Sth->bindValue(':left', $row->left, base_pdo::PARAM_INT);
+        $Sth->bindValue(':right', $row->right, base_pdo::PARAM_INT);
+        $Sth->bindValue(':pos', $row->position, base_pdo::PARAM_INT);
+        $Sth->bindValue(':id', $row->id, base_pdo::PARAM_INT);
 
-        if (!empty($where?->bindValues)) {
+        if (!empty($where->bindValues)) {
             foreach ($where->bindValues as $bindName => $bindValue) {
                 $Sth->bindValue($bindName, $bindValue);
             }
@@ -563,12 +564,12 @@ class MySql extends PDO
     {
         // delete the selected taxonomy ID
         $sql = 'DELETE FROM `' . $this->settings->tableName . '` WHERE `' . $this->settings->idColumnName . '` = :taxonomy_id';
-        if (!empty($where?->query)) {
+        if (!empty($where->query)) {
             $sql .= ' AND ' . $where->query;
         }
         $Sth = $this->pdo->prepare($sql);
-        $Sth->bindValue(':taxonomy_id', $nodeId, \PDO::PARAM_INT);
-        if (!empty($where?->bindValues)) {
+        $Sth->bindValue(':taxonomy_id', $nodeId, base_pdo::PARAM_INT);
+        if (!empty($where->bindValues)) {
             foreach ($where->bindValues as $bindName => $bindValue) {
                 $Sth->bindValue($bindName, $bindValue);
             }
@@ -583,14 +584,14 @@ class MySql extends PDO
     public function deleteWithChildren(Support\Node $row, ?Support\Conditions $where = null) : bool
     {
         $sql = 'DELETE FROM `' . $this->settings->tableName . '` WHERE `' . $this->settings->idColumnName . '` = :taxonomy_id';
-        if (!empty($where?->query)) {
+        if (!empty($where->query)) {
             $where->query = str_replace(['`parent`.', '`child`.'], '', $where->query);
             $sql .= ' AND ' . $where->query;
         }
         $Sth = $this->pdo->prepare($sql);
 
-        $Sth->bindValue(':taxonomy_id', $row->id, \PDO::PARAM_INT);
-        if (!empty($where?->bindValues)) {
+        $Sth->bindValue(':taxonomy_id', $row->id, base_pdo::PARAM_INT);
+        if (!empty($where->bindValues)) {
             foreach ($where->bindValues as $bindName => $bindValue) {
                 $Sth->bindValue($bindName, $bindValue);
             }

@@ -77,10 +77,10 @@ abstract class PDO implements SourceInterface
             $Sth->bindValue(':filter_parent_id', $options->parentId, base::PARAM_INT);
         }
 
-        if (!empty($options->search?->value)) {
+        if (!empty($options->search->value)) {
             $Sth->bindValue(':search', '%' . $options->search->value . '%', base::PARAM_STR);
         }
-        if (!empty($options->where?->bindValues)) {
+        if (!empty($options->where->bindValues)) {
             foreach ($options->where->bindValues as $placeholder => $value) {
                 $Sth->bindValue($placeholder, $value);
             }

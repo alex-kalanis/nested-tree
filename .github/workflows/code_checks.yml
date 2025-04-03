@@ -88,4 +88,5 @@ jobs:
                   php-version: ${{ matrix.php }}
                   tools: composer-dependency-analyser
                   coverage: none
+            - run: composer install --no-progress
             - run: composer-dependency-analyser
