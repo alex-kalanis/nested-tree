@@ -25,7 +25,7 @@ class NestedSet
      * @param Support\Options $options
      * @return Support\Node
      */
-    public function add(Support\Node $node, Support\Options $options = new Support\Options()): Support\Node
+    public function add(Support\Node $node, Support\Options $options = new Support\Options()) : Support\Node
     {
         $node->position = $this->getNewPosition($node->parentId);
         return $this->source->add($node, $options->where);
@@ -38,7 +38,7 @@ class NestedSet
      * @param Support\Options $options
      * @return bool
      */
-    public function update(Support\Node $node, Support\Options $options = new Support\Options()): bool
+    public function update(Support\Node $node, Support\Options $options = new Support\Options()) : bool
     {
         return $this->source->updateData($node, $options->where);
     }

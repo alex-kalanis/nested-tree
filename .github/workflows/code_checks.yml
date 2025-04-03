@@ -39,9 +39,11 @@ jobs:
             - uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
-                  coverage: none
+                  extensions: pdo, mysql
+                  tools: phpunit
+                  coverage: xdebug
             - run: composer install --no-progress
-            - run: vendor/bin/phpunit
+            - run: phpunit
 
     code_style:
         runs-on: ubuntu-latest
@@ -54,9 +56,9 @@ jobs:
             - uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
+                  tools: php-cs-fixer
                   coverage: none
-            - run: composer install --no-progress
-            - run: PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --format=txt --verbose --diff --allow-risky=yes --config=.php-cs-fixer.dist.php
+            - run: PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --format=txt --verbose --diff --allow-risky=yes --config=.php-cs-fixer.dist.php
 
     phpstan:
         runs-on: ubuntu-latest
@@ -69,9 +71,9 @@ jobs:
             - uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
+                  tools: phpstan
                   coverage: none
-            - run: composer install --no-progress
-            - run: vendor/bin/phpstan analyse -c phpstan.neon
+            - run: phpstan analyse -c phpstan.neon
 
     composer_dependencies:
         runs-on: ubuntu-latest
@@ -84,6 +86,6 @@ jobs:
             - uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
+                  tools: composer-dependency-analyser
                   coverage: none
-            - run: composer install --no-progress
-            - run: vendor/bin/composer-dependency-analyser
+            - run: composer-dependency-analyser
