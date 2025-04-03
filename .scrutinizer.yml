@@ -42,9 +42,9 @@ build:
           - mysql -e "CREATE DATABASE scrutinizer_run"
       tests:
         override:
-          - command: XDEBUG_MODE=coverage ./vendor/bin/phpunit --configuration phpunit.xml --coverage-clover php-tests/data/clover.xml
+          - command: XDEBUG_MODE=coverage ./vendor/bin/phpunit --configuration phpunit.xml --coverage-clover /home/scrutinizer/build/php-tests/data/clover.xml
             coverage:
-              file:  php-tests/temp/clover.xml
+              file:  /home/scrutinizer/build/php-tests/temp/clover.xml
               format: php-clover
 
 coding_style:
