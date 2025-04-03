@@ -1,5 +1,5 @@
 {
-    "name": "kalanis/nested-tree",
+    "name": "alex-kalanis/nested-tree",
     "description": "PHP Library to process nested tree structures",
     "type": "library",
     "keywords": ["php", "tree", "menu", "nested"],
