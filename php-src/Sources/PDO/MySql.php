@@ -4,7 +4,6 @@ namespace kalanis\nested_tree\Sources\PDO;
 
 use kalanis\nested_tree\Support;
 use PDO as base_pdo;
-use PDOStatement;
 
 class MySql extends PDO
 {
@@ -463,7 +462,7 @@ class MySql extends PDO
         return $query;
     }
 
-    protected function addAdditionalColumns(Support\Options $options, ?string $replaceName = null): string
+    protected function addAdditionalColumns(Support\Options $options, ?string $replaceName = null) : string
     {
         $sql = '';
         if (!empty($options->additionalColumns)) {
@@ -471,10 +470,11 @@ class MySql extends PDO
                 $sql .= ', ' . (!is_null($replaceName) ? $this->replaceColumns($column, $replaceName) : $column);
             }
         }
+
         return $sql;
     }
 
-    protected function addFilterBy(Support\Options $options): string
+    protected function addFilterBy(Support\Options $options) : string
     {
         $sql = '';
         if (!empty($options->filterIdBy)) {
@@ -494,35 +494,38 @@ class MySql extends PDO
             $nodeIdIn = implode(',', $options->filterIdBy);
             $sql .= ' AND `parent`.`' . $this->settings->idColumnName . '` IN (' . $nodeIdIn . ')';
         }
+
         return $sql;
     }
 
-    protected function addCurrentId(Support\Options $options, string $dbPrefix = ''): string
+    protected function addCurrentId(Support\Options $options, string $dbPrefix = '') : string
     {
         $sql = '';
         if (!is_null($options->currentId)) {
             $sql .= ' AND ' . $dbPrefix . '`' . $this->settings->idColumnName . '` = :filter_taxonomy_id';
         }
+
         return $sql;
     }
 
-    protected function addParentId(Support\Options $options, string $dbPrefix = ''): string
+    protected function addParentId(Support\Options $options, string $dbPrefix = '') : string
     {
         $sql = '';
         if (!is_null($options->parentId)) {
             $sql .= ' AND ' . $dbPrefix . '`' . $this->settings->parentIdColumnName . '` = :filter_parent_id';
         }
+
         return $sql;
     }
 
-    protected function bindCurrentId(?int $currentId, PDOStatement $pdo): void
+    protected function bindCurrentId(?int $currentId, \PDOStatement $pdo) : void
     {
         if (!is_null($currentId)) {
             $pdo->bindValue(':filter_taxonomy_id', $currentId, base_pdo::PARAM_INT);
         }
     }
 
-    protected function bindParentId(?int $parentId, PDOStatement $pdo, bool $skipNull = false): void
+    protected function bindParentId(?int $parentId, \PDOStatement $pdo, bool $skipNull = false) : void
     {
         if (is_null($parentId) && !$skipNull) {
             $pdo->bindValue(':filter_parent_id', null, base_pdo::PARAM_NULL);
@@ -531,7 +534,7 @@ class MySql extends PDO
         }
     }
 
-    protected function addSearch(Support\Options $options, string $dbPrefix = ''): string
+    protected function addSearch(Support\Options $options, string $dbPrefix = '') : string
     {
         $sql = '';
         if (
@@ -549,26 +552,28 @@ class MySql extends PDO
             }
             $sql .= ')';
         }
+
         return $sql;
     }
 
-    protected function bindSearch(Support\Options $options, PDOStatement $pdo): void
+    protected function bindSearch(Support\Options $options, \PDOStatement $pdo) : void
     {
         if (!empty($options->search->value)) {
             $pdo->bindValue(':search', '%' . $options->search->value . '%');
         }
     }
 
-    protected function addCustomQuery(?Support\Conditions $where, ?string $replaceName = null): string
+    protected function addCustomQuery(?Support\Conditions $where, ?string $replaceName = null) : string
     {
         $sql = '';
         if (!empty($where->query)) {
             $sql .= ' AND ' . (!is_null($replaceName) ? $this->replaceColumns($where->query, $replaceName) : $where->query);
         }
+
         return $sql;
     }
 
-    protected function bindCustomQuery(?Support\Conditions $where, PDOStatement $pdo): void
+    protected function bindCustomQuery(?Support\Conditions $where, \PDOStatement $pdo) : void
     {
         if (!empty($where->bindValues)) {
             foreach ($where->bindValues as $bindName => $bindValue) {
@@ -577,7 +582,7 @@ class MySql extends PDO
         }
     }
 
-    protected function addSorting(Support\Options $options): string
+    protected function addSorting(Support\Options $options) : string
     {
         $sql = '';
         if (!$options->noSortOrder) {
@@ -594,6 +599,7 @@ class MySql extends PDO
         } elseif ($options->joinChild) {
             $sql .= ' GROUP BY `' . $this->settings->idColumnName . '`';
         }
+
         return $sql;
     }
 }

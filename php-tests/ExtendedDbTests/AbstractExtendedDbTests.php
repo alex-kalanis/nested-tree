@@ -4,14 +4,13 @@ namespace Tests\ExtendedDbTests;
 
 use kalanis\nested_tree\Sources;
 use kalanis\nested_tree\Support;
-use PDO;
 use Tests\CommonTestClass;
 use Tests\MockNode;
 use Tests\NestedSetExtends;
 
 abstract class AbstractExtendedDbTests extends CommonTestClass
 {
-    protected ?PDO $database = null;
+    protected ?\PDO $database = null;
     protected ?NestedSetExtends $nestedSet = null;
     protected ?ExtendedTableSettings $settings = null;
 
