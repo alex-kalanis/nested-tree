@@ -3,28 +3,35 @@
 namespace Tests;
 
 use kalanis\nested_tree\Support;
+use PDO;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class CommonTestClass
  * The structure for mocking and configuration seems so complicated, but it's necessary to let it be totally idiot-proof
+ * @requires extension PDO
+ * @requires extension pdo_mysql
  */
 class CommonTestClass extends TestCase
 {
-    public function getPdo() : \PDO
+    public function getPdo() : PDO
     {
         $host = getenv('NESTED_TREE_MYSQL_DB_HOST');
-        $host = false !== $host ? strval($host) : 'localhost';
+        $host = false !== $host ? strval($host) : '127.0.0.1';
+
         $port = getenv('NESTED_TREE_MYSQL_DB_PORT');
         $port = false !== $port ? intval($port) : 3306;
-        $db = getenv('NESTED_TREE_MYSQL_DB_NAME');
-        $db = false !== $db ? strval($db) : 'nested_tree';
+
         $user = getenv('NESTED_TREE_MYSQL_DB_USER');
-        $user = false !== $user ? strval($user) : 'root';
+        $user = false !== $user ? strval($user) : 'testing';
+
         $pass = getenv('NESTED_TREE_MYSQL_DB_PASS');
         $pass = false !== $pass ? strval($pass) : 'there-is-nothing-available';
 
-        $connection = new \PDO(
+        $db = getenv('NESTED_TREE_MYSQL_DB_NAME');
+        $db = false !== $db ? strval($db) : 'nested_tree';
+
+        $connection = new PDO(
             sprintf(
                 'mysql:host=%s;port=%d;dbname=%s',
                 $host,
@@ -35,7 +42,7 @@ class CommonTestClass extends TestCase
             $pass,
         );
 
-        $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $connection->exec('SET NAMES utf8;');
 

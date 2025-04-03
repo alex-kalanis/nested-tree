@@ -4,13 +4,14 @@ namespace Tests\SimpleDbTests;
 
 use kalanis\nested_tree\Sources;
 use kalanis\nested_tree\Support;
+use PDO;
 use Tests\CommonTestClass;
 use Tests\MockNode;
 use Tests\NestedSetExtends;
 
 abstract class AbstractSimpleDbTests extends CommonTestClass
 {
-    protected ?\PDO $database = null;
+    protected ?PDO $database = null;
     protected ?NestedSetExtends $nestedSet = null;
     protected ?SimpleTableSettings $settings = null;
 
