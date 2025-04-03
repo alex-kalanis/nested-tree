@@ -13,11 +13,16 @@ class CommonTestClass extends TestCase
 {
     public function getPdo() : \PDO
     {
-        $host = getenv('NESTED_TREE_MYSQL_DB_HOST') ?: 'localhost';
-        $port = getenv('NESTED_TREE_MYSQL_DB_PORT') ?: 3306;
-        $db = getenv('NESTED_TREE_MYSQL_DB_NAME') ?: 'nested_tree';
-        $user = getenv('NESTED_TREE_MYSQL_DB_USER') ?: 'root';
-        $pass = getenv('NESTED_TREE_MYSQL_DB_PASS') ?: 'there-is-nothing-available';
+        $host = getenv('NESTED_TREE_MYSQL_DB_HOST');
+        $host = false !== $host ? strval($host) : 'localhost';
+        $port = getenv('NESTED_TREE_MYSQL_DB_PORT');
+        $port = false !== $port ? intval($port) : 3306;
+        $db = getenv('NESTED_TREE_MYSQL_DB_NAME');
+        $db = false !== $db ? strval($db) : 'nested_tree';
+        $user = getenv('NESTED_TREE_MYSQL_DB_USER');
+        $user = false !== $user ? strval($user) : 'root';
+        $pass = getenv('NESTED_TREE_MYSQL_DB_PASS');
+        $pass = false !== $pass ? strval($pass) : 'there-is-nothing-available';
 
         $connection = new \PDO(
             sprintf(
