@@ -382,10 +382,10 @@ class MySql extends PDO
         if (!is_null($options->currentId)) {
             $Sth->bindValue(':filter_taxonomy_id', $options->currentId, base_pdo::PARAM_INT);
         }
-        if (!empty($options->search?->value)) {
+        if (!empty($options->search->value)) {
             $Sth->bindValue(':search', '%' . $options->search->value . '%', base_pdo::PARAM_STR);
         }
-        if (!empty($options->where?->bindValues)) {
+        if (!empty($options->where->bindValues)) {
             foreach ($options->where->bindValues as $placeholder => $value) {
                 $Sth->bindValue($placeholder, $value);
             }

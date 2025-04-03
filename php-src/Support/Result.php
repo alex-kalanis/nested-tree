@@ -9,6 +9,9 @@ use IteratorAggregate;
  */
 class Result implements \Countable, \IteratorAggregate
 {
+    /**
+     * @var int<0, max>
+     */
     public int $count = 0;
 
     /**
@@ -16,12 +19,9 @@ class Result implements \Countable, \IteratorAggregate
      */
     public array $items = [];
 
-    /**
-     * @return int<0, max>
-     */
     public function count() : int
     {
-        return $this->count;
+        return max(0, $this->count);
     }
 
     public function getIterator() : \Traversable
