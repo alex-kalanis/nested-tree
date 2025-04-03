@@ -44,7 +44,7 @@ build:
         override:
           - command: XDEBUG_MODE=coverage ./vendor/bin/phpunit --configuration phpunit.xml --coverage-clover /home/scrutinizer/build/php-tests/data/clover.xml
             coverage:
-              file:  /home/scrutinizer/build/php-tests/temp/clover.xml
+              file:  /home/scrutinizer/build/php-tests/data/clover.xml
               format: php-clover
 
 coding_style:
