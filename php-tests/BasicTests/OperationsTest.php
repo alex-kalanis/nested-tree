@@ -141,7 +141,7 @@ class OperationsTest extends CommonTestClass
         $this->assertFalse($row);
     }
 
-    public function testMoveNone(): void
+    public function testMoveNone() : void
     {
         $this->assertFalse($this->nestedSet->move(0, 99));
     }

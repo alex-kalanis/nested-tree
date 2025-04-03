@@ -34,7 +34,8 @@ build:
           - php-scrutinizer-run
     coverage:
       services:
-        mariadb: 11.1
+        mysql: 8.4
+#        mariadb: 11.1 # no necessary ANY_VALUE function in DB - https://jira.mariadb.org/browse/MDEV-10426
       project_setup:
         before:
           - sudo service start mysql || true

@@ -141,7 +141,7 @@ class ListingDbTest extends AbstractSimpleDbTests
 
         $options = new Options();
         $options->unlimited = true;
-        $options->filterIdBy = [1,3,7,15, 'not-a-number', new \stdClass()];
+        $options->filterIdBy = [1, 3, 7, 15, 'not-a-number', new \stdClass()];
         $result = $this->nestedSet->listNodes($options);
 
         // assert
