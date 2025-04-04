@@ -77,8 +77,7 @@ class MySql extends PDO
         ;
         $sql .= $this->addAdditionalColumns($options, 'node.');
         $sql .= ' FROM `' . $this->settings->tableName . '` node';
-        $sql .= ' WHERE 1';
-        $sql .= $this->addCurrentId($options, 'node.');
+        $sql .= ' WHERE node.`' . $this->settings->idColumnName . '` = :filter_taxonomy_id';
         $sql .= $this->addCustomQuery($options->where, 'node.');
 
         $Sth = $this->pdo->prepare($sql);
