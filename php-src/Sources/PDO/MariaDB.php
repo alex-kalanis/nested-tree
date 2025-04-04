@@ -4,9 +4,10 @@ namespace kalanis\nested_tree\Sources\PDO;
 
 use kalanis\nested_tree\Support;
 
-
 /**
  * Implementation without ANY_VALUE which will cause problems on MariaDB servers
+ * @codeCoverageIgnore cannot connect both MySQL and MariaDB and set the ONLY_FULL_GROUP_BY variable out on Maria.
+ * Both Github and Scrutinizer have this problem.
  */
 class MariaDB extends MySql
 {
