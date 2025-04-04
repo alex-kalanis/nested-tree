@@ -169,7 +169,7 @@ class NestedSet
      * Example: There are taxonomy tree like this. Root 1 > 1.1 > 1.1.1, Root 2, Root 3 > 3.1, Root 3 > 3.2 > 3.2.1, Root 3 > 3.2 > 3.2.2, Root 3 > 3.3<br>
      * Assume that selected item is Root 3. So, the result will be Root 3 > 3.1, 3.2 > 3.2.1, 3.2.2, 3.3<br>
      *
-     * Warning! Even this method has options for search, custom where conditions
+     * Warning! Even this method has options for search, custom where conditions,
      * but it is recommended that you should set the option to select only specific item.<br>
      * This method is intended to show results from a single target.
      *
@@ -197,7 +197,7 @@ class NestedSet
      * Assume that you selected at 1.1.1. So, the result will be Root1 > 1.1 > 1.1.1<br>
      * But if you set 'skipCurrent' to true the result will be Root1 > 1.1
      *
-     * Warning! Even this method has options for search, custom where conditions
+     * Warning! Even this method has options for search, custom where conditions,
      * but it is recommended that you should set the option to select only specific item.<br>
      * This method is intended to show results from a single target.
      *
@@ -321,7 +321,7 @@ class NestedSet
     /**
      * Detect that is this taxonomy's parent setting to be under this taxonomy's children or not.<br>
      * For example: Root 1 > 1.1 > 1.1.1 > 1.1.1.1 > 1.1.1.1.1<br>
-     * Assume that you editing 1.1.1 and its parent is 1.1. Now you change its parent to 1.1.1.1.1 which is under its children.<br>
+     * Assume that you are editing 1.1.1 and its parent is 1.1. Now you change its parent to 1.1.1.1.1 which is under its children.<br>
      * The parent of 1.1.1 must be root, Root 1, 1.1 and never go under that.
      *
      * @param int<1, max> $currentNodeId The taxonomy ID that is changing the parent.

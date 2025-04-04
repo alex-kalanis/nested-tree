@@ -5,6 +5,9 @@ namespace kalanis\nested_tree\Sources\PDO;
 use kalanis\nested_tree\Support;
 use PDO as base_pdo;
 
+/**
+ * The default SQL implementation
+ */
 class MySql extends PDO
 {
     public function selectLastPosition(?int $parentNodeId, ?Support\Conditions $where = null) : ?int
@@ -16,7 +19,6 @@ class MySql extends PDO
         $sql .= ' ORDER BY `' . $this->settings->positionColumnName . '` DESC';
 
         $Sth = $this->pdo->prepare($sql);
-
         $this->bindParentId($parentNodeId, $Sth);
         $this->bindCustomQuery($where, $Sth);
 
@@ -49,7 +51,7 @@ class MySql extends PDO
         $sql .= ' WHERE 1';
         $sql .= $this->addCurrentId($options, 'node.');
         $sql .= $this->addCustomQuery($options->where, 'node.');
-        $sql .= ' ORDER BY `' . $this->settings->positionColumnName . '` ASC';
+        $sql .= ' ORDER BY node.`' . $this->settings->positionColumnName . '` ASC';
 
         $Sth = $this->pdo->prepare($sql);
         $this->bindCurrentId($options->currentId, $Sth);
@@ -75,7 +77,8 @@ class MySql extends PDO
         ;
         $sql .= $this->addAdditionalColumns($options, 'node.');
         $sql .= ' FROM `' . $this->settings->tableName . '` node';
-        $sql .= ' WHERE `' . $this->settings->idColumnName . '` = :filter_taxonomy_id';
+        $sql .= ' WHERE 1';
+        $sql .= $this->addCurrentId($options, 'node.');
         $sql .= $this->addCustomQuery($options->where, 'node.');
 
         $Sth = $this->pdo->prepare($sql);

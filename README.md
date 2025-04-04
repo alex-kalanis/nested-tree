@@ -87,3 +87,11 @@ The `master` branch includes unit tests.
 If you just want to check that everything is working as expected, executing the unit tests is enough.
 
 * `phpunit` - runs unit and functional tests
+
+## Caveats
+
+You must choose if you go with MariaDB or MySQL, because default implementation uses
+function [ANY_VALUE()](https://jira.mariadb.org/browse/MDEV-10426) to go around the
+problem with non-standard ```GROUP_BY``` implementation. So you may either use MySQL 5.7+
+or disable ```ONLY_FULL_GROUP_BY``` directive in MariaDB. Or write custom query source
+which itself will go around this particular problem.
