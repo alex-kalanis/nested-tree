@@ -20,39 +20,33 @@ class ActionsTest extends CommonTestClass
     public function testCreate() : void
     {
         $node = MockNode::create(25);
-        $this->actions->create($node);
-        $this->assertTrue(true);
+        $this->assertNotEmpty($this->actions->create($node));
     }
 
     public function testUpdate() : void
     {
         $node = MockNode::create(25);
-        $this->actions->update($node);
-        $this->assertTrue(true);
+        $this->assertTrue($this->actions->update($node));
     }
 
     public function testMove() : void
     {
-        $this->actions->movePosition(35, 400);
-        $this->assertTrue(true);
+        $this->assertTrue($this->actions->movePosition(35, 400));
     }
 
     public function testChangeParent() : void
     {
-        $this->actions->changeParent(35, 700);
-        $this->assertTrue(true);
+        $this->assertTrue($this->actions->changeParent(35, null));
     }
 
     public function testDeletePull() : void
     {
-        $this->actions->delete(35, true);
-        $this->assertTrue(true);
+        $this->assertTrue($this->actions->delete(35, true));
     }
 
     public function testDeleteAll() : void
     {
-        $this->actions->delete(35);
-        $this->assertTrue(true);
+        $this->assertTrue($this->actions->delete(35));
     }
 
     public function testOptions() : void

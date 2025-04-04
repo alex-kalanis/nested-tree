@@ -65,7 +65,7 @@ class MockDataSource implements SourceInterface
 
     public function updateNodeParent(int $nodeId, ?int $parentId, int $position, ?Support\Conditions $where) : bool
     {
-        return !empty($parentId);
+        return !empty($nodeId);
     }
 
     public function updateChildrenParent(int $nodeId, ?int $parentId, ?Support\Conditions $where) : bool
@@ -85,7 +85,7 @@ class MockDataSource implements SourceInterface
 
     public function deleteSolo(int $nodeId, ?Support\Conditions $where) : bool
     {
-        return empty($nodeId);
+        return !empty($nodeId);
     }
 
     public function deleteWithChildren(Support\Node $row, ?Support\Conditions $where) : bool

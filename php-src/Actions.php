@@ -21,43 +21,69 @@ class Actions
         $this->nestedSet->rebuild($this->getOptions());
     }
 
-    public function create(Support\Node $node) : void
+    /**
+     * Create new node in connected table
+     *
+     * @param Support\Node $node
+     * @return Support\Node
+     */
+    public function create(Support\Node $node) : Support\Node
     {
-        $this->nestedSet->add($node, $this->getOptions());
+        $result = $this->nestedSet->add($node, $this->getOptions());
         $this->nestedSet->rebuild($this->getOptions());
-    }
 
-    public function update(Support\Node $node) : void
-    {
-        $this->nestedSet->update($node);
-        $this->nestedSet->rebuild($this->getOptions());
+        return $result;
     }
 
     /**
+     * Update node's data
+     *
+     * @param Support\Node $node
+     * @return bool
+     */
+    public function update(Support\Node $node) : bool
+    {
+        $result = $this->nestedSet->update($node);
+        $this->nestedSet->rebuild($this->getOptions());
+
+        return $result;
+    }
+
+    /**
+     * Move node to the position
+     *
      * @param int<1, max> $nodeId
      * @param int<1, max> $newPosition
-     * @return void
+     * @return bool
      */
-    public function movePosition(int $nodeId, int $newPosition) : void
+    public function movePosition(int $nodeId, int $newPosition) : bool
     {
-        $this->nestedSet->move($nodeId, $newPosition);
+        $result = $this->nestedSet->move($nodeId, $newPosition);
         $this->nestedSet->rebuild($this->getOptions());
+
+        return $result;
     }
 
     /**
+     * Change node's parent
+     *
      * @param int<1, max> $nodeId
      * @param int<0, max>|null $newParent
-     * @return void
+     * @return bool
      */
-    public function changeParent(int $nodeId, ?int $newParent) : void
+    public function changeParent(int $nodeId, ?int $newParent) : bool
     {
-        $this->nestedSet->changeParent($nodeId, $newParent);
+        $result = $this->nestedSet->changeParent($nodeId, $newParent);
         $this->nestedSet->rebuild($this->getOptions());
+
+        return $result;
     }
 
     /**
+     * Delete node, with or without its children
+     *
      * @param int<1, max> $nodeId
-     * @param bool $childrenUp
+     * @param bool $childrenUp children will be reconnected to upper entry or deleted too
      * @return bool
      */
     public function delete(int $nodeId, bool $childrenUp = false) : bool
