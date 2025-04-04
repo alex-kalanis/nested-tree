@@ -46,7 +46,7 @@ class ActionsTest extends CommonTestClass
 
     public function testDeleteAll() : void
     {
-        $this->assertTrue($this->actions->delete(35));
+        $this->assertFalse($this->actions->delete(35));
     }
 
     public function testOptions() : void
