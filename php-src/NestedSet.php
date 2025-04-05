@@ -192,6 +192,26 @@ class NestedSet
     }
 
     /**
+     * Get simple taxonomy from all known; set things to make the query more limited
+     *
+     * @param Support\Options $options
+     * @return Support\Node|null
+     */
+    public function getNode(Support\Options $options = new Support\Options()) : ?Support\Node
+    {
+        $options = clone $options;
+        $options->unlimited = false;
+        $options->offset = 0;
+        $options->limit = 1;
+        $options->noSortOrder = false;
+        $nodes = $this->source->selectLimited($options);
+        if (empty($nodes)) {
+            return null;
+        }
+        return reset($nodes);
+    }
+
+    /**
      * Get taxonomy from selected item and fetch its parent in a line until root item.<br>
      * Example: There are taxonomy tree like this. Root1 > 1.1 > 1.1.1 > 1.1.1.1<br>
      * Assume that you selected at 1.1.1. So, the result will be Root1 > 1.1 > 1.1.1<br>

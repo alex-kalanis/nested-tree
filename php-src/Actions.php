@@ -22,6 +22,19 @@ class Actions
     }
 
     /**
+     * Get concrete node
+     *
+     * @param int $nodeId
+     * @return Support\Node|null
+     */
+    public function getNode(int $nodeId) : ?Support\Node
+    {
+        $options = clone $this->getOptions();
+        $options->currentId = $nodeId;
+        return $this->nestedSet->getNode($options);
+    }
+
+    /**
      * Create new node in connected table
      *
      * @param Support\Node $node
@@ -97,7 +110,7 @@ class Actions
         return $result;
     }
 
-    protected function getOptions() : Support\Options
+    public function getOptions() : Support\Options
     {
         return $this->options ?? new Support\Options();
     }

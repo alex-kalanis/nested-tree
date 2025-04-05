@@ -56,4 +56,23 @@ class ActionsTest extends CommonTestClass
         $this->actions->fixStructure();
         $this->assertTrue(true);
     }
+
+    public function testGet() : void
+    {
+        $node = $this->actions->getNode(1);
+        $this->assertNotNull($node);
+        $this->assertEquals(1, $node->id);
+        $this->assertEquals(1, $node->level);
+        $this->assertEquals(1, $node->left);
+        $this->assertEquals(2, $node->right);
+        $this->assertEquals(1, $node->position);
+    }
+
+    public function testGetNull() : void
+    {
+        $options = $this->actions->getOptions();
+        $options->skipCurrent = true;
+        $this->actions->setExtraOptions($options);
+        $this->assertNull($this->actions->getNode(1));
+    }
 }

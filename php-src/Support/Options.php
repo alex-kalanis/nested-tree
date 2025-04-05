@@ -30,7 +30,7 @@ class Options
      * @var array<string|int>
      * The taxonomy ID to look with `IN()` database function.
      * The array values must be integer, example `array(1,3,4,5)`.
-     * This will be flatten the result even `list_flatten` was not set.
+     * This will flatten the result even when `listFlattened` was not set.
      */
     public array $filterIdBy = [];
 
@@ -86,4 +86,10 @@ class Options
      * Set to `true` to explicit join of children
      */
     public bool $joinChild = false;
+
+    public function __clone()
+    {
+        $this->search = is_null($this->search) ? null : clone $this->search;
+        $this->where = is_null($this->where) ? null : clone $this->where;
+    }
 }
