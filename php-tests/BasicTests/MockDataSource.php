@@ -38,6 +38,7 @@ class MockDataSource implements SourceInterface
         if ($options->skipCurrent) {
             return [];
         }
+
         return [
             MockNode::create(1, 0, 1, 2, 1, 1),
             MockNode::create(2, 0, 3, 4, 1, 2),

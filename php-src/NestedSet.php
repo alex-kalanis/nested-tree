@@ -208,6 +208,7 @@ class NestedSet
         if (empty($nodes)) {
             return null;
         }
+
         return reset($nodes);
     }
 

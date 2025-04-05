@@ -31,6 +31,7 @@ class Actions
     {
         $options = clone $this->getOptions();
         $options->currentId = $nodeId;
+
         return $this->nestedSet->getNode($options);
     }
 
