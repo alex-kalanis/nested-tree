@@ -13,11 +13,9 @@ class Conditions
     public string $query = '';
 
     /**
-     * @var array<string, string|int>
+     * @var array<int|string, int|float|string|null>
      * <pre>
-     *  array(
-     *      'whereValues' => array(':value1' => 'lookup value 1', ':value2' => 'lookup value2'),
-     *  )
+     *      array(':value1' => 'lookup value 1', ':value2' => 'lookup value2')
      * </pre>
      */
     public array $bindValues = [];
