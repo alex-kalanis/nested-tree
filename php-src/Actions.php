@@ -67,7 +67,7 @@ class Actions
      * Move node to the position
      *
      * @param int<1, max> $nodeId
-     * @param int<1, max> $newPosition
+     * @param int<0, max> $newPosition
      * @return bool
      */
     public function movePosition(int $nodeId, int $newPosition) : bool
