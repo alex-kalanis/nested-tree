@@ -3,7 +3,6 @@
 namespace Tests\SimpleDbTests;
 
 use kalanis\nested_tree\Sources;
-use kalanis\nested_tree\Support;
 use Tests\CommonTestClass;
 use Tests\MockNode;
 use Tests\NestedSetExtends;
@@ -80,9 +79,4 @@ abstract class AbstractSimpleDbTests extends CommonTestClass
 (20, 16, '3.2.3', 3, 0, 0, 0);
 ";
     }
-}
-
-class SimpleTableSettings extends Support\TableSettings
-{
-    public string $tableName = 'test_taxonomy';
 }

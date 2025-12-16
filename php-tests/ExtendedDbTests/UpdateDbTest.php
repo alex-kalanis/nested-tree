@@ -9,7 +9,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
     /**
      * Test check that selected parent is same level or under its children.
      *
-     * This will be use to check before update the data.
+     * This will be used to check before update the data.
      *
      * @return void
      */
