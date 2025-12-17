@@ -405,14 +405,20 @@ class MySql extends PDO
         $compare = $moveUp ? '<=' : '>=';
         $sql = 'UPDATE `' . $this->settings->tableName . '`';
         $sql .= ' SET `' . $this->settings->positionColumnName . '` = `' . $this->settings->positionColumnName . '` ' . $direction . ' 1';
-        $sql .= ' WHERE `' . $this->settings->parentIdColumnName . '` = :filter_parent_id';
+        if (is_null($parentId)) {
+            $sql .= ' WHERE `' . $this->settings->parentIdColumnName . '` IS NULL';
+        } else {
+            $sql .= ' WHERE `' . $this->settings->parentIdColumnName . '` = :filter_parent_id';
+        }
         $sql .= ' AND `' . $this->settings->positionColumnName . '` ' . $compare . ' :position';
 
         $sql .= $this->addCustomQuery($where, '');
         $Sth = $this->pdo->prepare($sql);
 
         $Sth->bindValue(':position', $position, base_pdo::PARAM_INT);
-        $this->bindParentId($parentId, $Sth);
+        if (!is_null($parentId)) {
+            $this->bindParentId($parentId, $Sth);
+        }
         $this->bindCustomQuery($where, $Sth);
 
         $execute = $Sth->execute();

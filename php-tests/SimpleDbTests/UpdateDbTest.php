@@ -527,14 +527,17 @@ class UpdateDbTest extends AbstractSimpleDbTests
         $this->assertEquals('Root 1', $node->name);
         $this->assertEquals(1, $node->left);
         $this->assertEquals(2, $node->right);
+        $this->assertEquals(1, $node->position);
         $node = next($nodes->items);
         $this->assertEquals('Root 2', $node->name);
         $this->assertEquals(17, $node->left);
         $this->assertEquals(40, $node->right);
+        $this->assertEquals(3, $node->position);
         $node = next($nodes->items);
         $this->assertEquals('Root 3', $node->name);
         $this->assertEquals(3, $node->left);
         $this->assertEquals(16, $node->right);
+        $this->assertEquals(2, $node->position);
         $node = next($nodes->items);
         $this->assertEquals('2.1', $node->name);
         $this->assertEquals(18, $node->left);
