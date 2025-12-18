@@ -160,7 +160,7 @@ class UpdateDbTest extends AbstractNullDbTests
         $this->assertFalse($this->nestedSet->move(22, 2, $extraOptions));
     }
 
-    public function testMoveNoConditions() : void
+    public function testMoveNoConditionsMet() : void
     {
         $this->dataRefill();
         $this->nestedSet->rebuild();
@@ -173,7 +173,7 @@ class UpdateDbTest extends AbstractNullDbTests
         $conditions->bindValues = [':my_name' => '14.1.%'];
         $options->where = $conditions;
 
-        $this->assertTrue($this->nestedSet->move(15, 12, $options));
+        $this->assertFalse($this->nestedSet->move(15, 12, $options));
     }
 
     public function testUpdateData() : void

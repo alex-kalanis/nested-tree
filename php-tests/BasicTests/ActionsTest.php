@@ -31,17 +31,20 @@ class ActionsTest extends CommonTestClass
 
     public function testMove() : void
     {
-        $this->assertTrue($this->actions->movePosition(35, 400));
+        $this->assertFalse($this->actions->movePosition(35, 400));
+        $this->assertTrue($this->actions->movePosition(3, 2));
     }
 
     public function testChangeParent() : void
     {
-        $this->assertTrue($this->actions->changeParent(35, null));
+        $this->assertFalse($this->actions->changeParent(35, null));
+        $this->assertTrue($this->actions->changeParent(4, 0));
     }
 
     public function testDeletePull() : void
     {
-        $this->assertTrue($this->actions->delete(35, true));
+        $this->assertFalse($this->actions->delete(35, true));
+        $this->assertTrue($this->actions->delete(4, true));
     }
 
     public function testDeleteAll() : void

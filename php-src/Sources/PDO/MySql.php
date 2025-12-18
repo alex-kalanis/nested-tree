@@ -10,7 +10,7 @@ use PDO as base_pdo;
  */
 class MySql extends PDO
 {
-    public function selectLastPosition(?int $parentNodeId, ?Support\Conditions $where = null) : ?int
+    public function selectLastPosition(?Support\Node $parentNode, ?Support\Conditions $where = null) : ?int
     {
         $sql = 'SELECT `' . $this->settings->idColumnName . '`, `' . $this->settings->parentIdColumnName . '`, `' . $this->settings->positionColumnName . '`'
             . ' FROM `' . $this->settings->tableName . '`'
@@ -19,7 +19,7 @@ class MySql extends PDO
         $sql .= ' ORDER BY `' . $this->settings->positionColumnName . '` DESC';
 
         $Sth = $this->pdo->prepare($sql);
-        $this->bindParentId($parentNodeId, $Sth);
+        $this->bindParentId($parentNode?->id, $Sth);
         $this->bindCustomQuery($where, $Sth);
 
         $Sth->execute();
@@ -66,8 +66,12 @@ class MySql extends PDO
     /**
      * {@inheritdoc}
      */
-    public function selectParent(int $nodeId, Support\Options $options) : ?int
+    public function selectParent(Support\Node $node, Support\Options $options) : ?Support\Node
     {
+        if (is_null($node->parentId)) {
+            return null;
+        }
+
         $sql = 'SELECT node.`' . $this->settings->idColumnName . '`'
             . ', node.`' . $this->settings->parentIdColumnName . '`'
             . ', node.`' . $this->settings->leftColumnName . '`'
@@ -81,16 +85,20 @@ class MySql extends PDO
         $sql .= $this->addCustomQuery($options->where, 'node.');
 
         $Sth = $this->pdo->prepare($sql);
-        $this->bindCurrentId($nodeId, $Sth);
+        $this->bindCurrentId($node->parentId, $Sth);
         $this->bindCustomQuery($options->where, $Sth);
 
         $Sth->execute();
         /** @var array<string|int, mixed>|false $row */
         $row = $Sth->fetch();
-        $parent_id = $row ? $row[$this->settings->parentIdColumnName] : null;
+        $node = $row ? $this->fillDataFromRow($row) : null;
         $Sth->closeCursor();
 
-        return (empty($parent_id)) ? ($this->settings->rootIsNull ? null : 0) : max(0, intval($parent_id));
+        if (empty($node)) {
+            return $this->settings->rootIsNull ? null : new Support\Node();
+        }
+
+        return $node;
     }
 
     /**
@@ -134,6 +142,7 @@ class MySql extends PDO
         $result = $Sth->fetchAll();
 
         // "a bit" hardcore - get all lines and then count them
+        // that's due problems with COUNT() aggregator in MySQL
         return $result ? count($result) : 0;
     }
 
@@ -294,7 +303,7 @@ class MySql extends PDO
     public function updateData(Support\Node $node, ?Support\Conditions $where = null) : bool
     {
         $sql = 'UPDATE `' . $this->settings->tableName . '`';
-        $sql .= ' SET';
+        $sql .= ' SET ';
         $pairs = [];
         $lookup = [];
         foreach ((array) $node as $column => $value) {
@@ -330,8 +339,10 @@ class MySql extends PDO
     /**
      * {@inheritdoc}
      */
-    public function updateNodeParent(int $nodeId, ?int $parentId, int $position, ?Support\Conditions $where = null) : bool
+    public function updateNodeParent(Support\Node $node, ?Support\Node $parent, int $position, ?Support\Conditions $where = null) : bool
     {
+        $parent = $parent ?: ($this->settings->rootIsNull ? null : new Support\Node());
+
         $sql = 'UPDATE `' . $this->settings->tableName . '`';
         $sql .= ' SET `' . $this->settings->parentIdColumnName . '` = :filter_parent_id';
         $sql .= ' , `' . $this->settings->positionColumnName . '` = :position';
@@ -339,9 +350,9 @@ class MySql extends PDO
         $sql .= $this->addCustomQuery($where, '');
 
         $Sth = $this->pdo->prepare($sql);
-        $this->bindParentId($parentId, $Sth);
+        $this->bindParentId($parent?->id, $Sth);
         $Sth->bindValue(':position', $position, base_pdo::PARAM_INT);
-        $this->bindCurrentId($nodeId, $Sth);
+        $this->bindCurrentId($node->id, $Sth);
         $this->bindCustomQuery($where, $Sth);
 
         $execute = $Sth->execute();
@@ -353,16 +364,18 @@ class MySql extends PDO
     /**
      * {@inheritdoc}
      */
-    public function updateChildrenParent(int $nodeId, ?int $parentId, ?Support\Conditions $where = null) : bool
+    public function updateChildrenParent(Support\Node $node, ?Support\Node $parent, ?Support\Conditions $where = null) : bool
     {
+        $parent = $parent ?: ($this->settings->rootIsNull ? null : new Support\Node());
+
         $sql = 'UPDATE `' . $this->settings->tableName . '`';
         $sql .= ' SET `' . $this->settings->parentIdColumnName . '` = :filter_parent_id';
         $sql .= ' WHERE `' . $this->settings->parentIdColumnName . '` = :filter_taxonomy_id';
         $sql .= $this->addCustomQuery($where, '');
 
         $Sth = $this->pdo->prepare($sql);
-        $this->bindParentId($parentId, $Sth);
-        $this->bindCurrentId($nodeId, $Sth);
+        $this->bindParentId($parent?->id, $Sth);
+        $this->bindCurrentId($node->id, $Sth);
         $this->bindCustomQuery($where, $Sth);
 
         $execute = $Sth->execute();
@@ -399,13 +412,14 @@ class MySql extends PDO
     /**
      * {@inheritdoc}
      */
-    public function makeHole(?int $parentId, int $position, bool $moveUp, ?Support\Conditions $where = null) : bool
+    public function makeHole(?Support\Node $parent, int $position, bool $moveUp, ?Support\Conditions $where = null) : bool
     {
+        $parent = $parent ?: ($this->settings->rootIsNull ? null : new Support\Node());
         $direction = $moveUp ? '-' : '+';
         $compare = $moveUp ? '<=' : '>=';
         $sql = 'UPDATE `' . $this->settings->tableName . '`';
         $sql .= ' SET `' . $this->settings->positionColumnName . '` = `' . $this->settings->positionColumnName . '` ' . $direction . ' 1';
-        if (is_null($parentId)) {
+        if (is_null($parent)) {
             $sql .= ' WHERE `' . $this->settings->parentIdColumnName . '` IS NULL';
         } else {
             $sql .= ' WHERE `' . $this->settings->parentIdColumnName . '` = :filter_parent_id';
@@ -416,8 +430,8 @@ class MySql extends PDO
         $Sth = $this->pdo->prepare($sql);
 
         $Sth->bindValue(':position', $position, base_pdo::PARAM_INT);
-        if (!is_null($parentId)) {
-            $this->bindParentId($parentId, $Sth);
+        if (!is_null($parent)) {
+            $this->bindParentId($parent->id, $Sth);
         }
         $this->bindCustomQuery($where, $Sth);
 
@@ -430,14 +444,14 @@ class MySql extends PDO
     /**
      * {@inheritdoc}
      */
-    public function deleteSolo(int $nodeId, ?Support\Conditions $where = null) : bool
+    public function deleteSolo(Support\Node $node, ?Support\Conditions $where = null) : bool
     {
         // delete the selected taxonomy ID
         $sql = 'DELETE FROM `' . $this->settings->tableName . '` WHERE `' . $this->settings->idColumnName . '` = :filter_taxonomy_id';
         $sql .= $this->addCustomQuery($where, '');
         $Sth = $this->pdo->prepare($sql);
 
-        $this->bindCurrentId($nodeId, $Sth);
+        $this->bindCurrentId($node->id, $Sth);
         $this->bindCustomQuery($where, $Sth);
 
         $execute = $Sth->execute();
@@ -463,7 +477,7 @@ class MySql extends PDO
 
     protected function replaceColumns(string $query, string $byWhat = '') : string
     {
-        foreach (['`parent`.', '`child`.', 'parent.', 'child.'] as $toReplace) {
+        foreach (['`parent`.', '`child`.', '`node`.', 'parent.', 'child.', 'node.'] as $toReplace) {
             $query = str_replace($toReplace, $byWhat, $query);
         }
 
@@ -571,11 +585,15 @@ class MySql extends PDO
         }
     }
 
-    protected function addCustomQuery(?Support\Conditions $where, ?string $replaceName = null) : string
+    protected function addCustomQuery(?Support\Conditions $where, ?string $replaceName = null, bool $clearName = false) : string
     {
         $sql = '';
         if (!empty($where->query)) {
-            $sql .= ' AND ' . (!is_null($replaceName) ? $this->replaceColumns($where->query, $replaceName) : $where->query);
+            $sql .= ' AND ' . (
+                !is_null($replaceName)
+                    ? $this->replaceColumns($where->query, $replaceName)
+                    : ($clearName ? $this->replaceColumns($where->query) : $where->query)
+                );
         }
 
         return $sql;

@@ -7,11 +7,11 @@ use kalanis\nested_tree\Support;
 interface SourceInterface
 {
     /**
-     * @param int<0, max>|null $parentNodeId
+     * @param Support\Node|null $parentNode
      * @param Support\Conditions|null $where
      * @return int<1, max>|null
      */
-    public function selectLastPosition(?int $parentNodeId, ?Support\Conditions $where) : ?int;
+    public function selectLastPosition(?Support\Node $parentNode, ?Support\Conditions $where) : ?int;
 
     /**
      * @return Support\Node[]
@@ -19,11 +19,11 @@ interface SourceInterface
     public function selectSimple(Support\Options $options) : array;
 
     /**
-     * @param int<1, max> $nodeId
+     * @param Support\Node $node
      * @param Support\Options $options
-     * @return int<0, max>|null
+     * @return Support\Node|null
      */
-    public function selectParent(int $nodeId, Support\Options $options) : ?int;
+    public function selectParent(Support\Node $node, Support\Options $options) : ?Support\Node;
 
     /**
      * @param Support\Options $options
@@ -46,39 +46,39 @@ interface SourceInterface
     public function updateData(Support\Node $node, ?Support\Conditions $where) : bool;
 
     /**
-     * @param int<0, max> $nodeId
-     * @param int<0, max>|null $parentId
+     * @param Support\Node $node
+     * @param Support\Node|null $parent
      * @param int<0, max> $position
      * @param Support\Conditions|null $where
      * @return bool
      */
-    public function updateNodeParent(int $nodeId, ?int $parentId, int $position, ?Support\Conditions $where) : bool;
+    public function updateNodeParent(Support\Node $node, ?Support\Node $parent, int $position, ?Support\Conditions $where) : bool;
 
     /**
-     * @param int<0, max> $nodeId
-     * @param int<0, max>|null $parentId
+     * @param Support\Node $node
+     * @param Support\Node|null $parent
      * @param Support\Conditions|null $where
      * @return bool
      */
-    public function updateChildrenParent(int $nodeId, ?int $parentId, ?Support\Conditions $where) : bool;
+    public function updateChildrenParent(Support\Node $node, ?Support\Node $parent, ?Support\Conditions $where) : bool;
 
     public function updateLeftRightPos(Support\Node $row, ?Support\Conditions $where) : bool;
 
     /**
-     * @param int<0, max>|null $parentId
+     * @param Support\Node|null $parent
      * @param int<0, max> $position
      * @param bool $moveUp
      * @param Support\Conditions|null $where
      * @return bool
      */
-    public function makeHole(?int $parentId, int $position, bool $moveUp, ?Support\Conditions $where = null) : bool;
+    public function makeHole(?Support\Node $parent, int $position, bool $moveUp, ?Support\Conditions $where = null) : bool;
 
     /**
-     * @param int<0, max> $nodeId
+     * @param Support\Node $node
      * @param Support\Conditions|null $where
      * @return bool
      */
-    public function deleteSolo(int $nodeId, ?Support\Conditions $where) : bool;
+    public function deleteSolo(Support\Node $node, ?Support\Conditions $where) : bool;
 
     public function deleteWithChildren(Support\Node $row, ?Support\Conditions $where) : bool;
 }

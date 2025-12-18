@@ -16,8 +16,24 @@ trait ColumnsTrait
             'left' => $settings->leftColumnName,
             'right' => $settings->rightColumnName,
             'position' => $settings->positionColumnName,
-            default => $name,
+            default => $this->getNameBasedOnExtraSettings($settings, $name),
         };
+    }
+
+    /**
+     * @param TableSettings $settings
+     * @param string $name
+     * @return string
+     *
+     * Okay, time to be ready for Reflection.
+     * When there is settings property with name the same as the entry's then get the value it contains and return it
+     */
+    private function getNameBasedOnExtraSettings(TableSettings $settings, string $name): string
+    {
+        if (isset($settings->{$name})) {
+            return strval($settings->{$name});
+        }
+        return $name;
     }
 
     protected function isColumnNameFromBasic(string $name) : bool

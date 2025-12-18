@@ -7,9 +7,12 @@ use kalanis\nested_tree\Support;
 use Tests\CommonTestClass;
 use Tests\MockNode;
 use Tests\NestedSetExtends;
+use Tests\Support\DumpTrait;
 
 abstract class AbstractExtendedDbTests extends CommonTestClass
 {
+    use DumpTrait;
+
     protected ?\PDO $database = null;
     protected ?NestedSetExtends $nestedSet = null;
     protected ?ExtendedTableSettings $settings = null;

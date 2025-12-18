@@ -63,12 +63,28 @@ class NestedSet
      */
     public function changeParent(int $nodeId, ?int $newParentId, Support\Options $options = new Support\Options()) : bool
     {
+        $currentNode = $this->getNodeById($nodeId);
+        if (empty($currentNode)) {
+            return false;
+        }
+
+        if (!empty($newParentId)) {
+            $parentNode = $this->getNodeById($newParentId);
+            if (empty($parentNode)) {
+                return false;
+            }
+        } elseif (is_null($newParentId)) {
+            $parentNode = null;
+        } else {
+            $parentNode = new Support\Node();
+        }
+
         if (!$this->isNewParentOutsideCurrentNodeTree($nodeId, $newParentId, $options)) {
             return false;
         }
-        $newPosition = $this->getNewPosition($newParentId, $options->where);
+        $newPosition = $this->getNewPosition($parentNode, $options->where);
 
-        return $this->source->updateNodeParent($nodeId, $newParentId, $newPosition, $options->where);
+        return $this->source->updateNodeParent($currentNode, $parentNode, $newPosition, $options->where);
     }
 
     /**
@@ -81,18 +97,16 @@ class NestedSet
      */
     public function move(int $nodeId, int $newPosition, Support\Options $options = new Support\Options()) : bool
     {
-        $parentId = $this->source->selectParent($nodeId, $options);
-        // get single node
-        $customOptions = new Support\Options();
-        $customOptions->currentId = $nodeId;
-        $nodes = $this->source->selectSimple($customOptions);
-        $node = reset($nodes);
-        if (empty($node)) {
+        $currentNode = $this->getNodeById($nodeId, $options);
+        if (empty($currentNode)) {
             return false;
         }
+
+        $parentNode = $this->source->selectParent($currentNode, $options);
+
         // move it
-        if ($this->source->makeHole($parentId, $newPosition, $newPosition > $node->position, $options->where)) {
-            return $this->source->updateNodeParent($nodeId, $parentId, $newPosition, $options->where);
+        if ($this->source->makeHole($parentNode, $newPosition, $newPosition > $currentNode->position, $options->where)) {
+            return $this->source->updateNodeParent($currentNode, $parentNode, $newPosition, $options->where);
         }
 
         return false;
@@ -110,11 +124,15 @@ class NestedSet
     public function deletePullUpChildren(int $nodeId, Support\Options $options = new Support\Options()) : bool
     {
         // get this taxonomy parent id
-        $parentNodeId = $this->source->selectParent($nodeId, $options);
+        $node = $this->getNodeById($nodeId);
+        if (empty($node)) {
+            return false;
+        }
+        $parentNode = $this->source->selectParent($node, $options);
         // update this children first level.
-        $this->source->updateChildrenParent($nodeId, $parentNodeId, $options->where);
+        $this->source->updateChildrenParent($node, $parentNode, $options->where);
 
-        return $this->source->deleteSolo($nodeId, $options->where);
+        return $this->source->deleteSolo($node, $options->where);
     }
 
     /**
@@ -152,14 +170,25 @@ class NestedSet
     /**
      * Get new position for taxonomy in the selected parent.
      *
-     * @param int<0, max>|null $parentId The parent ID. If root, set this to 0 or null.
+     * @param int<0, max>|Support\Node|null $parent The parent ID. If root, set this to 0 or null.
      * @param Support\Conditions|null $where Where array structure will be like this.
      * @return int<1, max> Return the new position in the same parent.<br>
      *              WARNING! If there are no results or the results according to the conditions cannot be found. It always returns 1.
      */
-    public function getNewPosition(?int $parentId, ?Support\Conditions $where = null) : int
+    public function getNewPosition(int|Support\Node|null $parent, ?Support\Conditions $where = null) : int
     {
-        $lastPosition = $this->source->selectLastPosition($parentId, $where);
+        $parentNode = is_object($parent)
+            ? $parent
+            : (
+                is_null($parent)
+                    ? null
+                    : (
+                        0 == $parent
+                            ? new Support\Node()
+                            : $this->getNodeById($parent)
+                    )
+            );
+        $lastPosition = $this->source->selectLastPosition($parentNode, $where);
 
         return null === $lastPosition ? 1 : $lastPosition + 1;
     }
@@ -209,6 +238,25 @@ class NestedSet
             return null;
         }
 
+        return reset($nodes);
+    }
+
+    /**
+     * Get simple taxonomy by its ID; set things to make the query more limited
+     *
+     * @param int $nodeId
+     * @param Support\Options $options
+     * @return Support\Node|null
+     */
+    public function getNodeById(int $nodeId, Support\Options $options = new Support\Options()) : ?Support\Node
+    {
+        $customOptions = clone $options;
+        $customOptions->currentId = $nodeId;
+
+        $nodes = $this->source->selectSimple($customOptions);
+        if (empty($nodes)) {
+            return null;
+        }
         return reset($nodes);
     }
 
