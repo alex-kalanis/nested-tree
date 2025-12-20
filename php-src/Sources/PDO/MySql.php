@@ -4,6 +4,7 @@ namespace kalanis\nested_tree\Sources\PDO;
 
 use kalanis\nested_tree\Support;
 use PDO as base_pdo;
+use PDOStatement;
 
 /**
  * The default SQL implementation
@@ -21,6 +22,7 @@ class MySql extends PDO
             $sql .= ' AND `' . $this->settings->parentIdColumnName . '` = :filter_parent_id';
         }
         $sql .= $this->addCustomQuery($where, '');
+        $sql .= $this->addSoftDelete();
         $sql .= ' ORDER BY `' . $this->settings->positionColumnName . '` DESC';
 
         $Sth = $this->pdo->prepare($sql);
@@ -28,6 +30,7 @@ class MySql extends PDO
             $this->bindParentId($parentNode?->id, $Sth);
         }
         $this->bindCustomQuery($where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $Sth->execute();
         /** @var array<string|int, mixed>|false $row */
@@ -58,11 +61,13 @@ class MySql extends PDO
         $sql .= ' WHERE 1';
         $sql .= $this->addCurrentId($options, 'node.');
         $sql .= $this->addCustomQuery($options->where, 'node.');
+        $sql .= $this->addSoftDelete('node.');
         $sql .= ' ORDER BY node.`' . $this->settings->positionColumnName . '` ASC';
 
         $Sth = $this->pdo->prepare($sql);
         $this->bindCurrentId($options->currentId, $Sth);
         $this->bindCustomQuery($options->where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $Sth->execute();
         $result = $Sth->fetchAll();
@@ -90,10 +95,12 @@ class MySql extends PDO
         $sql .= ' FROM `' . $this->settings->tableName . '` node';
         $sql .= ' WHERE node.`' . $this->settings->idColumnName . '` = :filter_taxonomy_id';
         $sql .= $this->addCustomQuery($options->where, 'node.');
+        $sql .= $this->addSoftDelete( 'node.');
 
         $Sth = $this->pdo->prepare($sql);
         $this->bindCurrentId($node->parentId, $Sth);
         $this->bindCustomQuery($options->where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $Sth->execute();
         /** @var array<string|int, mixed>|false $row */
@@ -116,6 +123,9 @@ class MySql extends PDO
         $sql = 'SELECT ';
         $sql .= ' ANY_VALUE(`parent`.`' . $this->settings->idColumnName . '`)';
         $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->parentIdColumnName . '`)';
+        if ($this->settings->softDelete) {
+            $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->softDelete->columnName . '`)';
+        }
         if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
             $sql .= ', ANY_VALUE(`child`.`' . $this->settings->idColumnName . '`) AS `' . $this->settings->idColumnName . '`';
             $sql .= ', ANY_VALUE(`child`.`' . $this->settings->parentIdColumnName . '`) AS `' . $this->settings->parentIdColumnName . '`';
@@ -130,12 +140,13 @@ class MySql extends PDO
             $sql .= ' ON `child`.`' . $this->settings->leftColumnName . '` BETWEEN `parent`.`' . $this->settings->leftColumnName . '` AND `parent`.`' . $this->settings->rightColumnName . '`';
         }
 
-        $sql .= ' WHERE 1';
+        $sql .= ' WHERE TRUE';
         $sql .= $this->addFilterBy($options);
         $sql .= $this->addCurrentId($options, '`parent`.');
         $sql .= $this->addParentId($options, '`parent`.');
         $sql .= $this->addSearch($options, '`parent`.');
         $sql .= $this->addCustomQuery($options->where);
+        $sql .= $this->addSoftDelete('`parent`.');
         $sql .= $this->addSorting($options);
 
         // prepare and get 'total' count.
@@ -144,6 +155,7 @@ class MySql extends PDO
         $this->bindParentId($options->parentId, $Sth, true);
         $this->bindSearch($options, $Sth);
         $this->bindCustomQuery($options->where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $Sth->execute();
         $result = $Sth->fetchAll();
@@ -182,6 +194,7 @@ class MySql extends PDO
         $sql .= $this->addParentId($options, '`parent`.');
         $sql .= $this->addSearch($options, '`parent`.');
         $sql .= $this->addCustomQuery($options->where);
+        $sql .= $this->addSoftDelete('`parent`.');
         $sql .= $this->addSorting($options);
 
         // re-create query and prepare. second step is for set limit and fetch all items.
@@ -201,6 +214,7 @@ class MySql extends PDO
         $this->bindParentId($options->parentId, $Sth, true);
         $this->bindSearch($options, $Sth);
         $this->bindCustomQuery($options->where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $Sth->execute();
         $result = $Sth->fetchAll();
@@ -228,6 +242,7 @@ class MySql extends PDO
         $sql .= $this->addCurrentId($options, '`node`.');
         $sql .= $this->addSearch($options, '`node`.');
         $sql .= $this->addCustomQuery($options->where);
+        $sql .= $this->addSoftDelete('`node`.');
         $sql .= ' GROUP BY `parent`.`' . $this->settings->idColumnName . '`';
         $sql .= ' ORDER BY `parent`.`' . $this->settings->leftColumnName . '`';
 
@@ -235,6 +250,7 @@ class MySql extends PDO
         $this->bindCurrentId($options->currentId, $Sth);
         $this->bindSearch($options, $Sth);
         $this->bindCustomQuery($options->where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $Sth->execute();
         $result = $Sth->fetchAll();
@@ -348,6 +364,7 @@ class MySql extends PDO
         $sql .= ' WHERE `' . $this->settings->idColumnName . '` = :id';
 
         $sql .= $this->addCustomQuery($where, '');
+        $sql .= $this->addSoftDelete();
         $Sth = $this->pdo->prepare($sql);
 
         $Sth->bindValue(':id', $node->id, base_pdo::PARAM_INT);
@@ -355,6 +372,7 @@ class MySql extends PDO
             $Sth->bindValue($column, $value);
         }
         $this->bindCustomQuery($where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $execute = $Sth->execute();
         $Sth->closeCursor();
@@ -374,12 +392,14 @@ class MySql extends PDO
         $sql .= ' , `' . $this->settings->positionColumnName . '` = :position';
         $sql .= ' WHERE `' . $this->settings->idColumnName . '` = :filter_taxonomy_id';
         $sql .= $this->addCustomQuery($where, '');
+        $sql .= $this->addSoftDelete('');
 
         $Sth = $this->pdo->prepare($sql);
         $this->bindParentId($parent?->id, $Sth);
         $Sth->bindValue(':position', $position, base_pdo::PARAM_INT);
         $this->bindCurrentId($node->id, $Sth);
         $this->bindCustomQuery($where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $execute = $Sth->execute();
         $Sth->closeCursor();
@@ -398,11 +418,13 @@ class MySql extends PDO
         $sql .= ' SET `' . $this->settings->parentIdColumnName . '` = :filter_parent_id';
         $sql .= ' WHERE `' . $this->settings->parentIdColumnName . '` = :filter_taxonomy_id';
         $sql .= $this->addCustomQuery($where, '');
+        $sql .= $this->addSoftDelete();
 
         $Sth = $this->pdo->prepare($sql);
         $this->bindParentId($parent?->id, $Sth);
         $this->bindCurrentId($node->id, $Sth);
         $this->bindCustomQuery($where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $execute = $Sth->execute();
         $Sth->closeCursor();
@@ -420,6 +442,7 @@ class MySql extends PDO
         $sql .= ' `' . $this->settings->positionColumnName . '` = :pos';
         $sql .= ' WHERE `' . $this->settings->idColumnName . '` = :id';
         $sql .= $this->addCustomQuery($where, '');
+        $sql .= $this->addSoftDelete();
 
         $Sth = $this->pdo->prepare($sql);
         $Sth->bindValue(':level', $row->level, base_pdo::PARAM_INT);
@@ -428,6 +451,7 @@ class MySql extends PDO
         $Sth->bindValue(':pos', $row->position, base_pdo::PARAM_INT);
         $Sth->bindValue(':id', $row->id, base_pdo::PARAM_INT);
         $this->bindCustomQuery($where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $execute = $Sth->execute();
         $Sth->closeCursor();
@@ -453,6 +477,7 @@ class MySql extends PDO
         $sql .= ' AND `' . $this->settings->positionColumnName . '` ' . $compare . ' :position';
 
         $sql .= $this->addCustomQuery($where, '');
+        $sql .= $this->addSoftDelete();
         $Sth = $this->pdo->prepare($sql);
 
         $Sth->bindValue(':position', $position, base_pdo::PARAM_INT);
@@ -460,6 +485,7 @@ class MySql extends PDO
             $this->bindParentId($parent->id, $Sth);
         }
         $this->bindCustomQuery($where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $execute = $Sth->execute();
         $Sth->closeCursor();
@@ -472,27 +498,31 @@ class MySql extends PDO
      */
     public function deleteSolo(Support\Node $node, ?Support\Conditions $where = null) : bool
     {
+        if ($this->settings->softDelete) {
+            $sql = 'UPDATE `' . $this->settings->tableName . '`'
+                . ' SET `' . $this->settings->softDelete->columnName . '` = ' . $this->settings->softDelete->bindAsKey . '_mk'
+                . ' WHERE `' . $this->settings->idColumnName . '` = :filter_taxonomy_id';
+            $sql .= $this->addCustomQuery($where, '');
+            $sql .= $this->addSoftDelete();
+            $Sth = $this->pdo->prepare($sql);
+
+            $Sth->bindValue($this->settings->softDelete->bindAsKey . '_mk', $this->settings->softDelete->isDeleted);
+            $this->bindCurrentId($node->id, $Sth);
+            $this->bindCustomQuery($where, $Sth);
+            $this->bindSoftDelete($Sth);
+
+            $execute = $Sth->execute();
+            $Sth->closeCursor();
+
+            return $execute;
+        }
+
         // delete the selected taxonomy ID
         $sql = 'DELETE FROM `' . $this->settings->tableName . '` WHERE `' . $this->settings->idColumnName . '` = :filter_taxonomy_id';
         $sql .= $this->addCustomQuery($where, '');
         $Sth = $this->pdo->prepare($sql);
 
         $this->bindCurrentId($node->id, $Sth);
-        $this->bindCustomQuery($where, $Sth);
-
-        $execute = $Sth->execute();
-        $Sth->closeCursor();
-
-        return $execute;
-    }
-
-    public function deleteWithChildren(Support\Node $row, ?Support\Conditions $where = null) : bool
-    {
-        $sql = 'DELETE FROM `' . $this->settings->tableName . '` WHERE `' . $this->settings->idColumnName . '` = :filter_taxonomy_id';
-        $sql .= $this->addCustomQuery($where, '');
-        $Sth = $this->pdo->prepare($sql);
-
-        $this->bindCurrentId($row->id, $Sth);
         $this->bindCustomQuery($where, $Sth);
 
         $execute = $Sth->execute();
@@ -566,14 +596,14 @@ class MySql extends PDO
         return $sql;
     }
 
-    protected function bindCurrentId(?int $currentId, \PDOStatement $pdo) : void
+    protected function bindCurrentId(?int $currentId, PDOStatement $pdo) : void
     {
         if (!is_null($currentId)) {
             $pdo->bindValue(':filter_taxonomy_id', $currentId, base_pdo::PARAM_INT);
         }
     }
 
-    protected function bindParentId(?int $parentId, \PDOStatement $pdo, bool $skipNull = false) : void
+    protected function bindParentId(?int $parentId, PDOStatement $pdo, bool $skipNull = false) : void
     {
         if (is_null($parentId) && !$skipNull) {
             $pdo->bindValue(':filter_parent_id', null, base_pdo::PARAM_NULL);
@@ -604,7 +634,7 @@ class MySql extends PDO
         return $sql;
     }
 
-    protected function bindSearch(Support\Options $options, \PDOStatement $pdo) : void
+    protected function bindSearch(Support\Options $options, PDOStatement $pdo) : void
     {
         if (!empty($options->search->value)) {
             $pdo->bindValue(':search', '%' . $options->search->value . '%');
@@ -613,24 +643,47 @@ class MySql extends PDO
 
     protected function addCustomQuery(?Support\Conditions $where, ?string $replaceName = null, bool $clearName = false) : string
     {
-        $sql = '';
         if (!empty($where->query)) {
-            $sql .= ' AND ' . (
+            $query = (
                 !is_null($replaceName)
                     ? $this->replaceColumns($where->query, $replaceName)
                     : ($clearName ? $this->replaceColumns($where->query) : $where->query)
                 );
+            if (!empty(trim($query))) {
+                return ' AND ' . $query;
+            }
         }
 
-        return $sql;
+        return '';
     }
 
-    protected function bindCustomQuery(?Support\Conditions $where, \PDOStatement $pdo) : void
+    protected function bindCustomQuery(?Support\Conditions $where, PDOStatement $pdo) : void
     {
         if (!empty($where->bindValues)) {
             foreach ($where->bindValues as $bindName => $bindValue) {
                 $pdo->bindValue($bindName, $bindValue);
             }
+        }
+    }
+
+    protected function addSoftDelete(string $dbPrefix = '') : string
+    {
+        $sql = '';
+        if (!is_null($this->settings->softDelete)) {
+            $sql .= ' AND ' . $dbPrefix . '`' . $this->settings->softDelete->columnName . '` = ' . $this->settings->softDelete->bindAsKey;
+        }
+
+        return $sql;
+    }
+
+    protected function bindSoftDelete(PDOStatement $pdo) : void
+    {
+        if (!empty($this->settings->softDelete)) {
+            $pdo->bindValue(
+                $this->settings->softDelete->bindAsKey,
+                $this->settings->softDelete->canUse,
+                is_numeric($this->settings->softDelete->canUse) ? base_pdo::PARAM_INT : base_pdo::PARAM_STR
+            );
         }
     }
 

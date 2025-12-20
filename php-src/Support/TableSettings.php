@@ -40,6 +40,11 @@ class TableSettings
     public string $positionColumnName = 'position';
 
     /**
+     * @var SoftDelete|null Configuration of soft deletion. "Null" means not used.
+     */
+    public ?SoftDelete $softDelete = null;
+
+    /**
      * @var bool Is root as null or integer zero
      */
     public bool $rootIsNull = false;

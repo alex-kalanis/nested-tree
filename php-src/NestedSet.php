@@ -154,7 +154,7 @@ class NestedSet
 
         if (!empty($result->items)) {
             foreach ($result->items as $row) {
-                if ($this->source->deleteWithChildren($row, $options->where)) {
+                if ($this->source->deleteSolo($row, $options->where)) {
                     $i_count++;
                 }
             }

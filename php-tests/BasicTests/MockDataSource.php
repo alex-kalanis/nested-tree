@@ -8,6 +8,18 @@ use Tests\MockNode;
 
 class MockDataSource implements SourceInterface
 {
+    protected array $nodes = [];
+
+    public function __construct()
+    {
+        $this->nodes = [
+            MockNode::create(1, 0, 1, 2, 1, 1),
+            MockNode::create(2, 0, 3, 4, 1, 2),
+            MockNode::create(3, 0, 5, 6, 1, 3),
+            MockNode::create(4, 0, 7, 8, 1, 4),
+        ];
+    }
+
     public function selectLastPosition(?Support\Node $parentNode, ?Support\Conditions $where) : ?int
     {
         return empty($parentNode) || empty($parentNode->id) ? 0 : 3;
@@ -15,13 +27,7 @@ class MockDataSource implements SourceInterface
 
     public function selectSimple(Support\Options $options) : array
     {
-        $available = [
-            MockNode::create(1, 0, 1, 2, 1, 1),
-            MockNode::create(2, 0, 3, 4, 1, 2),
-            MockNode::create(3, 0, 5, 6, 1, 3),
-            MockNode::create(4, 0, 7, 8, 1, 4),
-        ];
-        $filtered = !is_null($options->currentId) ? array_filter($available, fn(MockNode $n): bool => $options->currentId === $n->id) : $available;
+        $filtered = !is_null($options->currentId) ? array_filter($this->nodes, fn(MockNode $n): bool => $options->currentId === $n->id) : $this->nodes;
         $filtered = !is_null($options->parentId) ? array_filter($filtered, fn(MockNode $n): bool => $options->parentId === $n->parentId) : $filtered;
         return $filtered;
     }
@@ -33,7 +39,9 @@ class MockDataSource implements SourceInterface
 
     public function selectCount(Support\Options $options) : int
     {
-        return 75;
+        $filtered = !is_null($options->currentId) ? array_filter($this->nodes, fn(MockNode $n): bool => $options->currentId === $n->id) : $this->nodes;
+        $filtered = !is_null($options->parentId) ? array_filter($filtered, fn(MockNode $n): bool => $options->parentId === $n->parentId) : $filtered;
+        return count($filtered);
     }
 
     public function selectLimited(Support\Options $options) : array
@@ -42,22 +50,14 @@ class MockDataSource implements SourceInterface
             return [];
         }
 
-        return [
-            MockNode::create(1, 0, 1, 2, 1, 1),
-            MockNode::create(2, 0, 3, 4, 1, 2),
-            MockNode::create(3, 0, 5, 6, 1, 3),
-            MockNode::create(4, 0, 7, 8, 1, 4),
-        ];
+        $filtered = !is_null($options->currentId) ? array_filter($this->nodes, fn(MockNode $n): bool => $options->currentId === $n->id) : $this->nodes;
+        $filtered = !is_null($options->parentId) ? array_filter($filtered, fn(MockNode $n): bool => $options->parentId === $n->parentId) : $filtered;
+        return $filtered;
     }
 
     public function selectWithParents(Support\Options $options) : array
     {
-        return [
-            MockNode::create(1, 0, 1, 2, 1, 1),
-            MockNode::create(2, 0, 3, 4, 1, 2),
-            MockNode::create(3, 0, 5, 6, 1, 3),
-            MockNode::create(4, 0, 7, 8, 1, 4),
-        ];
+        return $this->nodes;
     }
 
     public function add(Support\Node $node, ?Support\Conditions $where) : Support\Node
@@ -92,11 +92,6 @@ class MockDataSource implements SourceInterface
 
     public function deleteSolo(Support\Node $node, ?Support\Conditions $where) : bool
     {
-        return !empty($node) && !empty($node->id);
-    }
-
-    public function deleteWithChildren(Support\Node $row, ?Support\Conditions $where) : bool
-    {
-        return empty($row->id);
+        return !empty($node->id);
     }
 }

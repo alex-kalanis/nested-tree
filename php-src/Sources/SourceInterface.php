@@ -79,6 +79,4 @@ interface SourceInterface
      * @return bool
      */
     public function deleteSolo(Support\Node $node, ?Support\Conditions $where) : bool;
-
-    public function deleteWithChildren(Support\Node $row, ?Support\Conditions $where) : bool;
 }
