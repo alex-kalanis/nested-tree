@@ -73,4 +73,16 @@ class CommonTestClass extends TestCase
 
         return array_values($data);
     }
+
+    protected function getRow(PDO $pdo, Support\TableSettings $settings, int $rowId): array
+    {
+        $sql = 'SELECT * FROM `' . $settings->tableName . '` WHERE `' . $settings->idColumnName . '` = :id';
+        $Sth = $pdo->prepare($sql);
+        $Sth->bindValue(':id', $rowId, \PDO::PARAM_INT);
+        $Sth->execute();
+        $row = $Sth->fetch();
+        $Sth->closeCursor();
+        unset($sql, $Sth);
+        return $row;
+    }
 }

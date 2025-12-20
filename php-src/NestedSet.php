@@ -30,7 +30,7 @@ class NestedSet
      */
     public function add(Support\Node $node, Support\Options $options = new Support\Options()) : Support\Node
     {
-        $node->position = $this->getNewPosition($node->parentId);
+        $node->position = $this->getNewPosition($node->parentId, $options->where);
 
         return $this->source->add($node, $options->where);
     }

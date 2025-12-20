@@ -14,12 +14,19 @@ class MySql extends PDO
     {
         $sql = 'SELECT `' . $this->settings->idColumnName . '`, `' . $this->settings->parentIdColumnName . '`, `' . $this->settings->positionColumnName . '`'
             . ' FROM `' . $this->settings->tableName . '`'
-            . ' WHERE `' . $this->settings->parentIdColumnName . '` = :filter_parent_id';
+            . ' WHERE TRUE';
+        if (is_null($parentNode?->id)) {
+            $sql .= ' AND `' . $this->settings->parentIdColumnName . '` IS NULL';
+        } else {
+            $sql .= ' AND `' . $this->settings->parentIdColumnName . '` = :filter_parent_id';
+        }
         $sql .= $this->addCustomQuery($where, '');
         $sql .= ' ORDER BY `' . $this->settings->positionColumnName . '` DESC';
 
         $Sth = $this->pdo->prepare($sql);
-        $this->bindParentId($parentNode?->id, $Sth);
+        if (!is_null($parentNode?->id)) {
+            $this->bindParentId($parentNode?->id, $Sth);
+        }
         $this->bindCustomQuery($where, $Sth);
 
         $Sth->execute();
@@ -250,14 +257,23 @@ class MySql extends PDO
         $lookup = [];
         $pairs = [];
         foreach ((array) $node as $column => $value) {
-            if (!is_numeric($column) && !$this->isColumnNameFromBasic($column)) {
+            if (
+                !is_numeric($column)
+                && !$this->isColumnNameFromBasic($column)
+            ) {
                 $translateColumn = $this->translateColumn($this->settings, $column);
-                $lookup['`' . $translateColumn . '`'] = ':' . $translateColumn;
-                $pairs[':' . $translateColumn] = $value;
+                if (!is_null($translateColumn)) {
+                    $lookup['`' . $translateColumn . '`'] = ':' . $translateColumn;
+                    $pairs[':' . $translateColumn] = $value;
+                }
             }
         }
+        if (empty($lookup)) {
+            throw new \RuntimeException('No lookup data!');
+        }
+
         $sql .= '(' . implode(',', array_keys($lookup)) . ')';
-        $sql .= 'VALUES (' . implode(',', array_keys($pairs)) . ')';
+        $sql .= ' VALUES (' . implode(',', array_keys($pairs)) . ')';
 
         $Sth = $this->pdo->prepare($sql);
 
@@ -277,11 +293,17 @@ class MySql extends PDO
         // Now get it back
         $sql = 'SELECT * FROM `' . $this->settings->tableName . '` WHERE 1';
         foreach ($lookup as $column => $bind) {
-            $sql .= ' AND ' . $column . ' = ' . $bind;
+            if (is_null($pairs[$bind])) {
+                $sql .= ' AND ' . $column . ' IS NULL';
+            } else {
+                $sql .= ' AND ' . $column . ' = ' . $bind;
+            }
         }
         $Lth = $this->pdo->prepare($sql);
         foreach ($pairs as $column => $value) {
-            $Lth->bindValue($column, $value);
+            if (!is_null($value)) {
+                $Lth->bindValue($column, $value);
+            }
         }
 
         $Lth->execute();
@@ -311,12 +333,16 @@ class MySql extends PDO
                 !is_numeric($column)
                 && !$this->isColumnNameFromBasic($column)
                 && !$this->isColumnNameFromTree($column)
-                && !is_null($value)
             ) {
                 $translateColumn = $this->translateColumn($this->settings, $column);
-                $lookup[] = '`' . $translateColumn . '` = :' . $translateColumn;
-                $pairs[':' . $translateColumn] = $value;
+                if (!is_null($translateColumn)) {
+                    $lookup[] = '`' . $translateColumn . '` = :' . $translateColumn;
+                    $pairs[':' . $translateColumn] = $value;
+                }
             }
+        }
+        if (empty($lookup)) {
+            return false;
         }
         $sql .= implode(',', $lookup);
         $sql .= ' WHERE `' . $this->settings->idColumnName . '` = :id';

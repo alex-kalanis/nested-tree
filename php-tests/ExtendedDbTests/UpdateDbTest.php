@@ -230,12 +230,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $node = MockNode::create(14, name: 'Mop Update');
         $this->assertTrue($this->nestedSet->update($node, $categoryTypedOption));
 
-        $sql = 'SELECT * FROM `' . $this->settings->tableName . '` WHERE `' . $this->settings->idColumnName . '` = :id';
-        $Sth = $this->database->prepare($sql);
-        $Sth->bindValue(':id', 14, \PDO::PARAM_INT);
-        $Sth->execute();
-        $row = $Sth->fetch();
-        $Sth->closeCursor();
+        $row = $this->getRow($this->database, $this->settings, 14);
 
         // updated
         $this->assertEquals(14, $row[$this->settings->idColumnName]);

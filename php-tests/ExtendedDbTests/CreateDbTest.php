@@ -50,38 +50,20 @@ class CreateDbTest extends AbstractExtendedDbTests
         $this->nestedSet->rebuild($option1);
 
         // get the result of 3
-        $sql = 'SELECT * FROM `' . $this->settings->tableName . '` WHERE `' . $this->settings->idColumnName . '` = :id';
-        $Sth = $this->database->prepare($sql);
-        $Sth->bindValue(':id', 3, \PDO::PARAM_INT);
-        $Sth->execute();
-        $row = $Sth->fetch();
-        $Sth->closeCursor();
-        unset($sql, $Sth);
+        $row = $this->getRow($this->database, $this->settings, 3);
         // assert value must be matched.
         $this->assertEquals(40, $row[$this->settings->rightColumnName]);
         $this->assertEquals(1, $row[$this->settings->levelColumnName]);
 
         // get the result of 10
-        $sql = 'SELECT * FROM `' . $this->settings->tableName . '` WHERE `' . $this->settings->idColumnName . '` = :id';
-        $Sth = $this->database->prepare($sql);
-        $Sth->bindValue(':id', 10, \PDO::PARAM_INT);
-        $Sth->execute();
-        $row = $Sth->fetch();
-        $Sth->closeCursor();
-        unset($sql, $Sth);
+        $row = $this->getRow($this->database, $this->settings, 10);
         // assert value must be matched.
         $this->assertEquals(13, $row[$this->settings->leftColumnName]);
         $this->assertEquals(14, $row[$this->settings->rightColumnName]);
         $this->assertEquals(3, $row[$this->settings->levelColumnName]);
 
         // get the result of 29 (t_type = product_category and it did not yet rebuilt).
-        $sql = 'SELECT * FROM `' . $this->settings->tableName . '` WHERE `' . $this->settings->idColumnName . '` = :id';
-        $Sth = $this->database->prepare($sql);
-        $Sth->bindValue(':id', 29, \PDO::PARAM_INT);
-        $Sth->execute();
-        $row = $Sth->fetch();
-        $Sth->closeCursor();
-        unset($sql, $Sth);
+        $row = $this->getRow($this->database, $this->settings, 29);
         // assert value must be matched.
         $this->assertEquals(0, $row[$this->settings->leftColumnName]);
         $this->assertEquals(0, $row[$this->settings->rightColumnName]);

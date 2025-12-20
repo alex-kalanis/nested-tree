@@ -7,7 +7,7 @@ namespace kalanis\nested_tree\Support;
  */
 trait ColumnsTrait
 {
-    protected function translateColumn(TableSettings $settings, string $name) : string
+    protected function translateColumn(TableSettings $settings, string $name) : ?string
     {
         return match ($name) {
             'id' => $settings->idColumnName,
@@ -23,14 +23,17 @@ trait ColumnsTrait
     /**
      * @param TableSettings $settings
      * @param string $name
-     * @return string
+     * @return string|null
      *
      * Okay, time to be ready for Reflection.
      * When there is settings property with name the same as the entry's then get the value it contains and return it
      */
-    private function getNameBasedOnExtraSettings(TableSettings $settings, string $name): string
+    private function getNameBasedOnExtraSettings(TableSettings $settings, string $name): ?string
     {
-        if (isset($settings->{$name})) {
+        if (property_exists($settings, $name)) {
+            if (is_null($settings->{$name})) {
+                return null;
+            }
             return strval($settings->{$name});
         }
         return $name;
