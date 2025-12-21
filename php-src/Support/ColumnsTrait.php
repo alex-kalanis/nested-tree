@@ -28,14 +28,16 @@ trait ColumnsTrait
      * Okay, time to be ready for Reflection.
      * When there is settings property with name the same as the entry's then get the value it contains and return it
      */
-    private function getNameBasedOnExtraSettings(TableSettings $settings, string $name): ?string
+    private function getNameBasedOnExtraSettings(TableSettings $settings, string $name) : ?string
     {
         if (property_exists($settings, $name)) {
             if (is_null($settings->{$name})) {
                 return null;
             }
+
             return strval($settings->{$name});
         }
+
         return $name;
     }
 

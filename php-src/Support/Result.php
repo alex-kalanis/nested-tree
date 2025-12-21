@@ -2,10 +2,8 @@
 
 namespace kalanis\nested_tree\Support;
 
-use IteratorAggregate;
-
 /**
- * @implements IteratorAggregate<int, Node>
+ * @implements \IteratorAggregate<int, Node>
  */
 class Result implements \Countable, \IteratorAggregate
 {

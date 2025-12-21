@@ -27,5 +27,4 @@ class SoftDelete
      * @var string
      */
     public string $bindAsKey = ':soft_delete';
-
 }

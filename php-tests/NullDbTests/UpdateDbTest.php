@@ -193,7 +193,7 @@ class UpdateDbTest extends AbstractNullDbTests
         $this->assertEquals('Mop Update', $row['name']);
     }
 
-    public function testMoveWithoutChildren(): void
+    public function testMoveWithoutChildren() : void
     {
         $this->dataRefill();
         $this->nestedSet->rebuild();
@@ -206,7 +206,7 @@ class UpdateDbTest extends AbstractNullDbTests
         $options->joinChild = true;
         $options->additionalColumns = ['ANY_VALUE(child.name) as name'];
         $nodes = $this->nestedSet->listNodesFlatten($options);
-        usort($nodes->items, fn(Support\Node $node1, Support\Node $node2): int => $node1 <=> $node2);
+        usort($nodes->items, fn (Support\Node $node1, Support\Node $node2) : int => $node1->id <=> $node2->id);
 
         $node = reset($nodes->items);
         $this->assertEquals('Root 1', $node->name);
@@ -298,7 +298,7 @@ class UpdateDbTest extends AbstractNullDbTests
         $this->assertEmpty($node);
     }
 
-    public function testMoveWithChildrenNoAnotherChildren(): void
+    public function testMoveWithChildrenNoAnotherChildren() : void
     {
         $this->dataRefill();
         $this->nestedSet->rebuild();
@@ -311,7 +311,7 @@ class UpdateDbTest extends AbstractNullDbTests
         $options->joinChild = true;
         $options->additionalColumns = ['ANY_VALUE(child.name) as name'];
         $nodes = $this->nestedSet->listNodesFlatten($options);
-        usort($nodes->items, fn(Support\Node $node1, Support\Node $node2): int => $node1 <=> $node2);
+        usort($nodes->items, fn (Support\Node $node1, Support\Node $node2) : int => $node1->id <=> $node2->id);
 
         $node = reset($nodes->items);
         $this->assertEquals('Root 1', $node->name);
@@ -403,7 +403,7 @@ class UpdateDbTest extends AbstractNullDbTests
         $this->assertEmpty($node);
     }
 
-    public function testMoveWithAnotherChildren(): void
+    public function testMoveWithAnotherChildren() : void
     {
         $this->dataRefill();
         $this->nestedSet->rebuild();
@@ -416,7 +416,7 @@ class UpdateDbTest extends AbstractNullDbTests
         $options->joinChild = true;
         $options->additionalColumns = ['ANY_VALUE(child.name) as name'];
         $nodes = $this->nestedSet->listNodesFlatten($options);
-        usort($nodes->items, fn(Support\Node $node1, Support\Node $node2): int => $node1 <=> $node2);
+        usort($nodes->items, fn (Support\Node $node1, Support\Node $node2) : int => $node1->id <=> $node2->id);
 
         $node = reset($nodes->items);
         $this->assertEquals('Root 1', $node->name);
@@ -502,7 +502,7 @@ class UpdateDbTest extends AbstractNullDbTests
         $this->assertEmpty($node);
     }
 
-    public function testMoveWithBothChildren(): void
+    public function testMoveWithBothChildren() : void
     {
         $this->dataRefill();
         $this->nestedSet->rebuild();
@@ -515,7 +515,7 @@ class UpdateDbTest extends AbstractNullDbTests
         $options->joinChild = true;
         $options->additionalColumns = ['ANY_VALUE(child.name) as name'];
         $nodes = $this->nestedSet->listNodesFlatten($options);
-        usort($nodes->items, fn(Support\Node $node1, Support\Node $node2): int => $node1 <=> $node2);
+        usort($nodes->items, fn (Support\Node $node1, Support\Node $node2) : int => $node1->id <=> $node2->id);
 
         $node = reset($nodes->items);
         $this->assertEquals('Root 1', $node->name);

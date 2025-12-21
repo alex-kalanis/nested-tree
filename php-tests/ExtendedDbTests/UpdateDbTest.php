@@ -239,7 +239,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $this->assertEquals('Mop Update', $row['t_name']);
     }
 
-    public function testMoveWithoutChildren(): void
+    public function testMoveWithoutChildren() : void
     {
         $this->dataRefill();
         $categoryOption = $this->getOptions();
@@ -258,7 +258,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $where->bindValues = [':type' => 'category'];
         $options->where = $where;
         $nodes = $this->nestedSet->listNodesFlatten($options);
-        usort($nodes->items, fn(Support\Node $node1, Support\Node $node2): int => $node1 <=> $node2);
+        usort($nodes->items, fn (Support\Node $node1, Support\Node $node2) : int => $node1->id <=> $node2->id);
 
         $node = reset($nodes->items);
         $this->assertEquals('Root 1', $node->name);
@@ -350,7 +350,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $this->assertEmpty($node);
     }
 
-    public function testMoveWithChildrenNoAnotherChildren(): void
+    public function testMoveWithChildrenNoAnotherChildren() : void
     {
         $this->dataRefill();
         $categoryOption = $this->getOptions();
@@ -369,7 +369,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $where->bindValues = [':type' => 'category'];
         $options->where = $where;
         $nodes = $this->nestedSet->listNodesFlatten($options);
-        usort($nodes->items, fn(Support\Node $node1, Support\Node $node2): int => $node1 <=> $node2);
+        usort($nodes->items, fn (Support\Node $node1, Support\Node $node2) : int => $node1->id <=> $node2->id);
 
         $node = reset($nodes->items);
         $this->assertEquals('Root 1', $node->name);
@@ -461,7 +461,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $this->assertEmpty($node);
     }
 
-    public function testMoveWithAnotherChildren(): void
+    public function testMoveWithAnotherChildren() : void
     {
         $this->dataRefill();
         $categoryOption = $this->getOptions();
@@ -480,7 +480,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $where->bindValues = [':type' => 'category'];
         $options->where = $where;
         $nodes = $this->nestedSet->listNodesFlatten($options);
-        usort($nodes->items, fn(Support\Node $node1, Support\Node $node2): int => $node1 <=> $node2);
+        usort($nodes->items, fn (Support\Node $node1, Support\Node $node2) : int => $node1->id <=> $node2->id);
 
         $node = reset($nodes->items);
         $this->assertEquals('Root 1', $node->name);
@@ -566,7 +566,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $this->assertEmpty($node);
     }
 
-    public function testMoveWithBothChildren(): void
+    public function testMoveWithBothChildren() : void
     {
         $this->dataRefill();
         $categoryOption = $this->getOptions();
@@ -585,7 +585,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $where->bindValues = [':type' => 'category'];
         $options->where = $where;
         $nodes = $this->nestedSet->listNodesFlatten($options);
-        usort($nodes->items, fn(Support\Node $node1, Support\Node $node2): int => $node1 <=> $node2);
+        usort($nodes->items, fn (Support\Node $node1, Support\Node $node2) : int => $node1->id <=> $node2->id);
 
         $node = reset($nodes->items);
         $this->assertEquals('Root 1', $node->name);
@@ -674,7 +674,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $this->assertEmpty($node);
     }
 
-    protected function getOptions(): Support\Options
+    protected function getOptions() : Support\Options
     {
         $categoryOption = new Support\Options();
         $categoryCondition = new Support\Conditions();
@@ -682,10 +682,11 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $categoryCondition->bindValues = [':type' => 'category'];
         $categoryOption->additionalColumns = ['`t_type`'];
         $categoryOption->where = $categoryCondition;
+
         return $categoryOption;
     }
 
-    protected function getTypedOptions(): Support\Options
+    protected function getTypedOptions() : Support\Options
     {
         $categoryOption = new Support\Options();
         $categoryCondition = new Support\Conditions();
@@ -693,6 +694,7 @@ class UpdateDbTest extends AbstractExtendedDbTests
         $categoryCondition->bindValues = [':type' => 'category'];
         $categoryOption->additionalColumns = ['node.`t_type`'];
         $categoryOption->where = $categoryCondition;
+
         return $categoryOption;
     }
 }

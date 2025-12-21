@@ -27,8 +27,9 @@ class MockDataSource implements SourceInterface
 
     public function selectSimple(Support\Options $options) : array
     {
-        $filtered = !is_null($options->currentId) ? array_filter($this->nodes, fn(MockNode $n): bool => $options->currentId === $n->id) : $this->nodes;
-        $filtered = !is_null($options->parentId) ? array_filter($filtered, fn(MockNode $n): bool => $options->parentId === $n->parentId) : $filtered;
+        $filtered = !is_null($options->currentId) ? array_filter($this->nodes, fn (MockNode $n) : bool => $options->currentId === $n->id) : $this->nodes;
+        $filtered = !is_null($options->parentId) ? array_filter($filtered, fn (MockNode $n) : bool => $options->parentId === $n->parentId) : $filtered;
+
         return $filtered;
     }
 
@@ -39,8 +40,9 @@ class MockDataSource implements SourceInterface
 
     public function selectCount(Support\Options $options) : int
     {
-        $filtered = !is_null($options->currentId) ? array_filter($this->nodes, fn(MockNode $n): bool => $options->currentId === $n->id) : $this->nodes;
-        $filtered = !is_null($options->parentId) ? array_filter($filtered, fn(MockNode $n): bool => $options->parentId === $n->parentId) : $filtered;
+        $filtered = !is_null($options->currentId) ? array_filter($this->nodes, fn (MockNode $n) : bool => $options->currentId === $n->id) : $this->nodes;
+        $filtered = !is_null($options->parentId) ? array_filter($filtered, fn (MockNode $n) : bool => $options->parentId === $n->parentId) : $filtered;
+
         return count($filtered);
     }
 
@@ -50,8 +52,9 @@ class MockDataSource implements SourceInterface
             return [];
         }
 
-        $filtered = !is_null($options->currentId) ? array_filter($this->nodes, fn(MockNode $n): bool => $options->currentId === $n->id) : $this->nodes;
-        $filtered = !is_null($options->parentId) ? array_filter($filtered, fn(MockNode $n): bool => $options->parentId === $n->parentId) : $filtered;
+        $filtered = !is_null($options->currentId) ? array_filter($this->nodes, fn (MockNode $n) : bool => $options->currentId === $n->id) : $this->nodes;
+        $filtered = !is_null($options->parentId) ? array_filter($filtered, fn (MockNode $n) : bool => $options->parentId === $n->parentId) : $filtered;
+
         return $filtered;
     }
 

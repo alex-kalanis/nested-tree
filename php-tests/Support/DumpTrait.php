@@ -3,10 +3,9 @@
 namespace Tests\Support;
 
 use kalanis\nested_tree\Support\TableSettings;
-use PDO;
 
 /**
- * @property PDO $database
+ * @property \PDO $database
  * @property TableSettings $settings
  */
 trait DumpTrait
@@ -23,7 +22,7 @@ trait DumpTrait
         }
 
         $Sth->execute();
-        $rows = $Sth->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $Sth->fetchAll(\PDO::FETCH_ASSOC);
         $Sth->closeCursor();
 
         return $rows;

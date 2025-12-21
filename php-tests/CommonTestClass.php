@@ -3,7 +3,6 @@
 namespace Tests;
 
 use kalanis\nested_tree\Support;
-use PDO;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class CommonTestClass extends TestCase
 {
-    public function getPdo() : PDO
+    public function getPdo() : \PDO
     {
         $host = getenv('NESTED_TREE_MYSQL_DB_HOST');
         $host = false !== $host ? strval($host) : '127.0.0.1';
@@ -31,7 +30,7 @@ class CommonTestClass extends TestCase
         $db = getenv('NESTED_TREE_MYSQL_DB_NAME');
         $db = false !== $db ? strval($db) : 'nested_tree';
 
-        $connection = new PDO(
+        $connection = new \PDO(
             sprintf(
                 'mysql:host=%s;port=%d;dbname=%s',
                 $host,
@@ -42,7 +41,7 @@ class CommonTestClass extends TestCase
             $pass,
         );
 
-        $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
         $connection->exec('SET NAMES utf8;');
 
@@ -74,7 +73,7 @@ class CommonTestClass extends TestCase
         return array_values($data);
     }
 
-    protected function getRow(PDO $pdo, Support\TableSettings $settings, int $rowId): array
+    protected function getRow(\PDO $pdo, Support\TableSettings $settings, int $rowId) : array
     {
         $sql = 'SELECT * FROM `' . $settings->tableName . '` WHERE `' . $settings->idColumnName . '` = :id';
         $Sth = $pdo->prepare($sql);
@@ -83,6 +82,7 @@ class CommonTestClass extends TestCase
         $row = $Sth->fetch();
         $Sth->closeCursor();
         unset($sql, $Sth);
+
         return $row;
     }
 }
