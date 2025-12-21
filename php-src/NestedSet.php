@@ -183,7 +183,7 @@ class NestedSet
                 is_null($parent)
                     ? null
                     : (
-                        0 == $parent
+                        0 === $parent
                             ? new Support\Node()
                             : $this->getNodeById($parent)
                     )
@@ -257,6 +257,7 @@ class NestedSet
         if (empty($nodes)) {
             return null;
         }
+
         return reset($nodes);
     }
 
@@ -403,7 +404,7 @@ class NestedSet
     public function isNewParentOutsideCurrentNodeTree(int $currentNodeId, ?int $newParentId, Support\Options $options = new Support\Options()) : bool
     {
         if (empty($newParentId)) {
-            // if parent is root, always return false because that is correct!
+            // if parent is root, always return true because that is always correct!
             return true;
         }
 

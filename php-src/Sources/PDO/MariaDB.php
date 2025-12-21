@@ -19,6 +19,9 @@ class MariaDB extends MySql
         $sql = 'SELECT ';
         $sql .= ' `parent`.`' . $this->settings->idColumnName . '` AS p_cid';
         $sql .= ', `parent`.`' . $this->settings->parentIdColumnName . '` AS p_pid';
+        if ($this->settings->softDelete) {
+            $sql .= ', `parent`.`' . $this->settings->softDelete->columnName . '`';
+        }
         if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
             $sql .= ', `child`.`' . $this->settings->idColumnName . '` AS `' . $this->settings->idColumnName . '`';
             $sql .= ', `child`.`' . $this->settings->parentIdColumnName . '` AS `' . $this->settings->parentIdColumnName . '`';
@@ -33,12 +36,13 @@ class MariaDB extends MySql
             $sql .= ' ON `child`.`' . $this->settings->leftColumnName . '` BETWEEN `parent`.`' . $this->settings->leftColumnName . '` AND `parent`.`' . $this->settings->rightColumnName . '`';
         }
 
-        $sql .= ' WHERE 1';
+        $sql .= ' WHERE TRUE';
         $sql .= $this->addFilterBy($options);
         $sql .= $this->addCurrentId($options, '`parent`.');
         $sql .= $this->addParentId($options, '`parent`.');
         $sql .= $this->addSearch($options, '`parent`.');
         $sql .= $this->addCustomQuery($options->where);
+        $sql .= $this->addSoftDelete('`parent`.');
         $sql .= $this->addSorting($options);
 
         // prepare and get 'total' count.
@@ -47,6 +51,7 @@ class MariaDB extends MySql
         $this->bindParentId($options->parentId, $Sth, true);
         $this->bindSearch($options, $Sth);
         $this->bindCustomQuery($options->where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $Sth->execute();
         $result = $Sth->fetchAll();
@@ -78,12 +83,13 @@ class MariaDB extends MySql
             $sql .= ' ON `child`.`' . $this->settings->leftColumnName . '` BETWEEN `parent`.`' . $this->settings->leftColumnName . '` AND `parent`.`' . $this->settings->rightColumnName . '`';
         }
 
-        $sql .= ' WHERE 1';
+        $sql .= ' WHERE TRUE';
         $sql .= $this->addFilterBy($options);
         $sql .= $this->addCurrentId($options, '`parent`.');
         $sql .= $this->addParentId($options, '`parent`.');
         $sql .= $this->addSearch($options, '`parent`.');
         $sql .= $this->addCustomQuery($options->where);
+        $sql .= $this->addSoftDelete('`parent`.');
         $sql .= $this->addSorting($options);
 
         // re-create query and prepare. second step is for set limit and fetch all items.
@@ -103,6 +109,7 @@ class MariaDB extends MySql
         $this->bindParentId($options->parentId, $Sth, true);
         $this->bindSearch($options, $Sth);
         $this->bindCustomQuery($options->where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $Sth->execute();
         $result = $Sth->fetchAll();
@@ -130,6 +137,7 @@ class MariaDB extends MySql
         $sql .= $this->addCurrentId($options, '`node`.');
         $sql .= $this->addSearch($options, '`node`.');
         $sql .= $this->addCustomQuery($options->where);
+        $sql .= $this->addSoftDelete('`node`.');
         $sql .= ' GROUP BY `parent`.`' . $this->settings->idColumnName . '`';
         $sql .= ' ORDER BY `parent`.`' . $this->settings->leftColumnName . '`';
 
@@ -137,6 +145,7 @@ class MariaDB extends MySql
         $this->bindCurrentId($options->currentId, $Sth);
         $this->bindSearch($options, $Sth);
         $this->bindCustomQuery($options->where, $Sth);
+        $this->bindSoftDelete($Sth);
 
         $Sth->execute();
         $result = $Sth->fetchAll();

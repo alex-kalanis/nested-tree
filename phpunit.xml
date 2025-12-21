@@ -36,6 +36,7 @@
             <directory>php-tests/SimpleDbTests</directory>
             <directory>php-tests/ExtendedDbTests</directory>
             <directory>php-tests/NullDbTests</directory>
+            <directory>php-tests/MultipleMenusTests</directory>
         </testsuite>
     </testsuites>
 

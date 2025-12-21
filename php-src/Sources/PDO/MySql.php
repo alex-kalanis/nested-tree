@@ -4,7 +4,6 @@ namespace kalanis\nested_tree\Sources\PDO;
 
 use kalanis\nested_tree\Support;
 use PDO as base_pdo;
-use PDOStatement;
 
 /**
  * The default SQL implementation
@@ -27,7 +26,7 @@ class MySql extends PDO
 
         $Sth = $this->pdo->prepare($sql);
         if (!is_null($parentNode?->id)) {
-            $this->bindParentId($parentNode?->id, $Sth);
+            $this->bindParentId($parentNode->id, $Sth);
         }
         $this->bindCustomQuery($where, $Sth);
         $this->bindSoftDelete($Sth);
@@ -95,7 +94,7 @@ class MySql extends PDO
         $sql .= ' FROM `' . $this->settings->tableName . '` node';
         $sql .= ' WHERE node.`' . $this->settings->idColumnName . '` = :filter_taxonomy_id';
         $sql .= $this->addCustomQuery($options->where, 'node.');
-        $sql .= $this->addSoftDelete( 'node.');
+        $sql .= $this->addSoftDelete('node.');
 
         $Sth = $this->pdo->prepare($sql);
         $this->bindCurrentId($node->parentId, $Sth);
@@ -188,7 +187,7 @@ class MySql extends PDO
             $sql .= ' ON `child`.`' . $this->settings->leftColumnName . '` BETWEEN `parent`.`' . $this->settings->leftColumnName . '` AND `parent`.`' . $this->settings->rightColumnName . '`';
         }
 
-        $sql .= ' WHERE 1';
+        $sql .= ' WHERE TRUE';
         $sql .= $this->addFilterBy($options);
         $sql .= $this->addCurrentId($options, '`parent`.');
         $sql .= $this->addParentId($options, '`parent`.');
@@ -596,14 +595,14 @@ class MySql extends PDO
         return $sql;
     }
 
-    protected function bindCurrentId(?int $currentId, PDOStatement $pdo) : void
+    protected function bindCurrentId(?int $currentId, \PDOStatement $pdo) : void
     {
         if (!is_null($currentId)) {
             $pdo->bindValue(':filter_taxonomy_id', $currentId, base_pdo::PARAM_INT);
         }
     }
 
-    protected function bindParentId(?int $parentId, PDOStatement $pdo, bool $skipNull = false) : void
+    protected function bindParentId(?int $parentId, \PDOStatement $pdo, bool $skipNull = false) : void
     {
         if (is_null($parentId) && !$skipNull) {
             $pdo->bindValue(':filter_parent_id', null, base_pdo::PARAM_NULL);
@@ -634,7 +633,7 @@ class MySql extends PDO
         return $sql;
     }
 
-    protected function bindSearch(Support\Options $options, PDOStatement $pdo) : void
+    protected function bindSearch(Support\Options $options, \PDOStatement $pdo) : void
     {
         if (!empty($options->search->value)) {
             $pdo->bindValue(':search', '%' . $options->search->value . '%');
@@ -648,7 +647,7 @@ class MySql extends PDO
                 !is_null($replaceName)
                     ? $this->replaceColumns($where->query, $replaceName)
                     : ($clearName ? $this->replaceColumns($where->query) : $where->query)
-                );
+            );
             if (!empty(trim($query))) {
                 return ' AND ' . $query;
             }
@@ -657,7 +656,7 @@ class MySql extends PDO
         return '';
     }
 
-    protected function bindCustomQuery(?Support\Conditions $where, PDOStatement $pdo) : void
+    protected function bindCustomQuery(?Support\Conditions $where, \PDOStatement $pdo) : void
     {
         if (!empty($where->bindValues)) {
             foreach ($where->bindValues as $bindName => $bindValue) {
@@ -676,7 +675,7 @@ class MySql extends PDO
         return $sql;
     }
 
-    protected function bindSoftDelete(PDOStatement $pdo) : void
+    protected function bindSoftDelete(\PDOStatement $pdo) : void
     {
         if (!empty($this->settings->softDelete)) {
             $pdo->bindValue(
