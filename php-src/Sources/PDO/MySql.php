@@ -284,8 +284,11 @@ class MySql extends PDO
             }
         }
         if (empty($lookup)) {
+            // @codeCoverageIgnoreStart
+            // when this happens it is problem with inserted data, not with library
             throw new \RuntimeException('No lookup data!');
         }
+        // @codeCoverageIgnoreEnd
 
         $sql .= '(' . implode(',', array_keys($lookup)) . ')';
         $sql .= ' VALUES (' . implode(',', array_keys($pairs)) . ')';

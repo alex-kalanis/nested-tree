@@ -190,4 +190,28 @@ class ListingDbTest extends AbstractSimpleDbTests
         $this->assertEquals(20, $list_txn->count);
         $this->assertCount(20, $list_txn->items); // due to this is flatten list, it will be count all items that were fetched which there are 20 items.
     }
+
+    /**
+     * Test listing the taxonomy data in flatten style - nothing found
+     */
+    public function testListTaxonomyNoResult() : void
+    {
+        $this->dataRefill();
+        $this->nestedSet->rebuild();
+
+        $options = new Options();
+        $options->unlimited = true;
+        $options->joinChild = true;
+        $options->listFlattened = false;
+        $optionsSearch = new Search();
+        $optionsSearch->value = '7.0'; // not exists here as name
+        $optionsSearch->columns = ['name'];
+        $options->search = $optionsSearch;
+
+        $list_txn = $this->nestedSet->listNodes($options);
+
+        // assert
+        $this->assertEquals(0, $list_txn->count);
+        $this->assertCount(0, $list_txn->items);
+    }
 }

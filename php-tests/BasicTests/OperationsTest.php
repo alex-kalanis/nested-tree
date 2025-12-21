@@ -145,6 +145,31 @@ class OperationsTest extends CommonTestClass
         $this->assertFalse($this->nestedSet->move(0, 99));
     }
 
+    public function testMoveNoneKnown() : void
+    {
+        $nestedSet = new NestedSetExtends(new MockDataSource([
+            MockNode::create(0, null, 0, 9, 0, 1),
+            MockNode::create(1, 0, 1, 2, 1, 1),
+        ]));
+        $this->assertFalse($nestedSet->move(0, 99));
+    }
+
+    public function testChangeParentExists() : void
+    {
+        $nestedSet = new NestedSetExtends(new MockDataSource([
+            MockNode::create(1, 0, 1, 2, 1, 1),
+        ]));
+        $this->assertTrue($nestedSet->changeParent(1, null));
+    }
+
+    public function testChangeParentNop() : void
+    {
+        $nestedSet = new NestedSetExtends(new MockDataSource([
+            MockNode::create(1, 0, 1, 2, 1, 1),
+        ]));
+        $this->assertFalse($nestedSet->changeParent(1, 13));
+    }
+
     public function testColumnTranslate() : void
     {
         $ts = new TableSettings();

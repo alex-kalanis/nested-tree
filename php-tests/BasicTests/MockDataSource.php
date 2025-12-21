@@ -8,11 +8,15 @@ use Tests\MockNode;
 
 class MockDataSource implements SourceInterface
 {
+    /** @var MockNode[] */
     protected array $nodes = [];
 
-    public function __construct()
+    /**
+     * @param MockNode[] $nodes
+     */
+    public function __construct(array $nodes = [])
     {
-        $this->nodes = [
+        $this->nodes = $nodes ?: [
             MockNode::create(1, 0, 1, 2, 1, 1),
             MockNode::create(2, 0, 3, 4, 1, 2),
             MockNode::create(3, 0, 5, 6, 1, 3),
@@ -35,7 +39,9 @@ class MockDataSource implements SourceInterface
 
     public function selectParent(Support\Node $node, Support\Options $options) : ?Support\Node
     {
-        return !empty($node->id) ? $node : null;
+        $filtered = !is_null($node->parentId) ? array_filter($this->nodes, fn (MockNode $n) : bool => $node->parentId === $n->parentId) : $this->nodes;
+
+        return !empty($filtered) ? reset($filtered) : null;
     }
 
     public function selectCount(Support\Options $options) : int
