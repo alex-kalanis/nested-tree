@@ -8,7 +8,7 @@ use kalanis\nested_tree\Support\Search;
 class ListingDbTest extends AbstractSimpleDbTests
 {
     /**
-     * Test listing the taxonomy data in hierarchy or flatten styles with many options.
+     * Test listing the taxonomy data in hierarchy style with many options.
      */
     public function testListTaxonomySimple() : void
     {
@@ -17,6 +17,22 @@ class ListingDbTest extends AbstractSimpleDbTests
 
         // tests without options set.
         $result = $this->nestedSet->listNodes();
+        // assert
+        $this->assertEquals(20, $result->count); // all entries
+        $this->assertCount(3, $result->items); // all items on root
+    }
+
+    /**
+     * Test listing the taxonomy data in flat style with many options.
+     */
+    public function testListTaxonomyFlat() : void
+    {
+        $this->dataRefill();
+        $this->nestedSet->rebuild();
+
+        $options = new Options();
+        $options->listFlattened = true;
+        $result = $this->nestedSet->listNodes($options);
         // assert
         $this->assertEquals(20, $result->count); // all entries
         $this->assertCount(20, $result->items); // all items
@@ -41,7 +57,7 @@ class ListingDbTest extends AbstractSimpleDbTests
         $this->assertEquals(20, $result->count);
         $this->assertCount(3, iterator_to_array($result));
         // due to this is nested list (tree list),
-        // it is not flatten list then it will be count only root items which there are just 3.
+        // it is not flat list then it will be count only root items which there are just 3.
         // (Root 1, Root 2, Root 3.)
     }
 

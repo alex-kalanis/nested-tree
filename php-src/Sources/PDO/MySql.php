@@ -169,9 +169,12 @@ class MySql extends PDO
     {
         $joinChild = $this->canJoinChild($options);
         $sql = 'SELECT';
-        $sql .= ' ANY_VALUE(`parent`.`' . $this->settings->idColumnName . '`)';
-        $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->parentIdColumnName . '`)';
-        $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->leftColumnName . '`)';
+        $sql .= ' ANY_VALUE(`parent`.`' . $this->settings->idColumnName . '`)' . ($joinChild ? '' : ' AS `' . $this->settings->idColumnName . '`');
+        $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->parentIdColumnName . '`)' . ($joinChild ? '' : ' AS `' . $this->settings->parentIdColumnName . '`');
+        $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->leftColumnName . '`)' . ($joinChild ? '' : ' AS `' . $this->settings->leftColumnName . '`');
+        $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->rightColumnName . '`)' . ($joinChild ? '' : ' AS `' . $this->settings->rightColumnName . '`');
+        $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->levelColumnName . '`)' . ($joinChild ? '' : ' AS `' . $this->settings->levelColumnName . '`');
+        $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->positionColumnName . '`)' . ($joinChild ? '' : ' AS `' . $this->settings->positionColumnName . '`');
         if ($joinChild) {
             $sql .= ', ANY_VALUE(`child`.`' . $this->settings->idColumnName . '`) AS `' . $this->settings->idColumnName . '`';
             $sql .= ', ANY_VALUE(`child`.`' . $this->settings->parentIdColumnName . '`) AS `' . $this->settings->parentIdColumnName . '`';

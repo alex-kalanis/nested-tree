@@ -65,9 +65,12 @@ class MariaDB extends MySql
     {
         $joinChild = $this->canJoinChild($options);
         $sql = 'SELECT';
-        $sql .= ' `parent`.`' . $this->settings->idColumnName . '` AS p_cid';
-        $sql .= ', `parent`.`' . $this->settings->parentIdColumnName . '` AS p_pid';
-        $sql .= ', `parent`.`' . $this->settings->leftColumnName . '` AS p_lf';
+        $sql .= ' `parent`.`' . $this->settings->idColumnName . '`' . ($joinChild ? '' : ' AS `' . $this->settings->idColumnName . '`');
+        $sql .= ', `parent`.`' . $this->settings->parentIdColumnName . '`' . ($joinChild ? '' : ' AS `' . $this->settings->parentIdColumnName . '`');
+        $sql .= ', `parent`.`' . $this->settings->leftColumnName . '`' . ($joinChild ? '' : ' AS `' . $this->settings->leftColumnName . '`');
+        $sql .= ', `parent`.`' . $this->settings->rightColumnName . '`' . ($joinChild ? '' : ' AS `' . $this->settings->rightColumnName . '`');
+        $sql .= ', `parent`.`' . $this->settings->levelColumnName . '`' . ($joinChild ? '' : ' AS `' . $this->settings->levelColumnName . '`');
+        $sql .= ', `parent`.`' . $this->settings->positionColumnName . '`' . ($joinChild ? '' : ' AS `' . $this->settings->positionColumnName . '`');
         if ($joinChild) {
             $sql .= ', `child`.`' . $this->settings->idColumnName . '` AS `' . $this->settings->idColumnName . '`';
             $sql .= ', `child`.`' . $this->settings->parentIdColumnName . '` AS `' . $this->settings->parentIdColumnName . '`';
