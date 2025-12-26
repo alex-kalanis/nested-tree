@@ -88,7 +88,7 @@ class ListingDbTest extends AbstractNullDbTests
 
         // assert
         $this->assertEquals(6, $result->count); // with children.
-        $this->assertCount(3, $result->items); // only root items because not flatten.
+        $this->assertCount(3, $result->items); // only root items because not set as flat.
     }
 
     /**
@@ -110,7 +110,7 @@ class ListingDbTest extends AbstractNullDbTests
 
         // assert
         $this->assertEquals(6, $result->count); // with children.
-        $this->assertCount(3, $result->items); // only root items because not flatten.
+        $this->assertCount(3, $result->items); // only root items because not set as flat.
     }
 
     /**
@@ -212,6 +212,6 @@ class ListingDbTest extends AbstractNullDbTests
 
         // assert
         $this->assertEquals(20, $list_txn->count);
-        $this->assertCount(20, $list_txn->items); // due to this is flatten list, it will be count all items that were fetched which there are 20 items.
+        $this->assertCount(20, $list_txn->items); // due to this is flat list, it will be count all items that were fetched which there are 20 items.
     }
 }

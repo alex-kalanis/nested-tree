@@ -116,7 +116,7 @@ class MariaDB extends MySql
         $Sth->execute();
         $result = $Sth->fetchAll();
 
-        return $result ? $this->fromDbRows($result) : [];
+        return $result ? $this->fromDbRows($result, $joinChild) : [];
     }
 
     /**

@@ -10,6 +10,21 @@ class ListingDbTest extends AbstractSimpleDbTests
     /**
      * Test listing the taxonomy data in hierarchy or flatten styles with many options.
      */
+    public function testListTaxonomySimple() : void
+    {
+        $this->dataRefill();
+        $this->nestedSet->rebuild();
+
+        // tests without options set.
+        $result = $this->nestedSet->listNodes();
+        // assert
+        $this->assertEquals(20, $result->count); // all entries
+        $this->assertCount(20, $result->items); // all items
+    }
+
+    /**
+     * Test listing the taxonomy data in hierarchy or flatten styles with many options.
+     */
     public function testListTaxonomyFullCount() : void
     {
         $this->dataRefill();
@@ -145,12 +160,12 @@ class ListingDbTest extends AbstractSimpleDbTests
         $result = $this->nestedSet->listNodes($options);
 
         // assert
-        $this->assertEquals(4, $result->count); // with children.
-        $this->assertCount(1, $result->items); // only root items because not flatten.
+        $this->assertEquals(4, $result->count); // all entries
+        $this->assertCount(4, $result->items); // all items
     }
 
     /**
-     * Sub test of `testListTaxonomy()` but expect (assert) the children that will be generated from `NestedSet->listTaxonomyBuildTreeWithChildren()`.
+     * Subtest of `testListTaxonomy()` but expect (assert) the children that will be generated from `NestedSet->listTaxonomyBuildTreeWithChildren()`.
      */
     public function testListTaxonomyExpectChildren() : void
     {
@@ -188,7 +203,7 @@ class ListingDbTest extends AbstractSimpleDbTests
 
         // assert
         $this->assertEquals(20, $list_txn->count);
-        $this->assertCount(20, $list_txn->items); // due to this is flatten list, it will be count all items that were fetched which there are 20 items.
+        $this->assertCount(20, $list_txn->items); // due to this is flat list, it will be count all items that were fetched which there are 20 items.
     }
 
     /**

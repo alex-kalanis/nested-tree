@@ -220,7 +220,7 @@ class MySql extends PDO
         $Sth->execute();
         $result = $Sth->fetchAll();
 
-        return $result ? $this->fromDbRows($result) : [];
+        return $result ? $this->fromDbRows($result, $joinChild) : [];
     }
 
     /**
@@ -712,7 +712,7 @@ class MySql extends PDO
         return $sql;
     }
 
-    protected function canJoinChild(Support\Options $options): bool
+    protected function canJoinChild(Support\Options $options) : bool
     {
         return (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild);
     }

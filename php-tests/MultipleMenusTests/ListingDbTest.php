@@ -10,6 +10,41 @@ class ListingDbTest extends AbstractMultipleMenusTests
     /**
      * Test listing the taxonomy data in hierarchy or flatten styles with many options.
      */
+    public function testListTaxonomySimple() : void
+    {
+        $this->dataRefill();
+        $this->rebuild(1);
+        $this->rebuild(2);
+
+        // tests without options set.
+        $result = $this->nestedSet->listNodes();
+        // assert
+        $this->assertEquals(26, $result->count); // all entries
+        $this->assertCount(20, $result->items); // all items on page
+    }
+
+    /**
+     * Test listing the taxonomy data in hierarchy or flatten styles with many options.
+     */
+    public function testListTaxonomyLongPage() : void
+    {
+        $this->dataRefill();
+        $this->rebuild(1);
+        $this->rebuild(2);
+
+        $options = new Options();
+        $options->limit = 100;
+
+        // tests without options set.
+        $result = $this->nestedSet->listNodes($options);
+        // assert
+        $this->assertEquals(26, $result->count); // all entries
+        $this->assertCount(26, $result->items); // all items on page
+    }
+
+    /**
+     * Test listing the taxonomy data in hierarchy or flatten styles with many options.
+     */
     public function testListTaxonomyFull() : void
     {
         $this->dataRefill();
