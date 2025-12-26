@@ -16,13 +16,14 @@ class MariaDB extends MySql
      */
     public function selectCount(Support\Options $options) : int
     {
+        $joinChild = $this->canJoinChild($options);
         $sql = 'SELECT ';
         $sql .= ' `parent`.`' . $this->settings->idColumnName . '` AS p_cid';
         $sql .= ', `parent`.`' . $this->settings->parentIdColumnName . '` AS p_pid';
         if ($this->settings->softDelete) {
             $sql .= ', `parent`.`' . $this->settings->softDelete->columnName . '`';
         }
-        if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
+        if ($joinChild) {
             $sql .= ', `child`.`' . $this->settings->idColumnName . '` AS `' . $this->settings->idColumnName . '`';
             $sql .= ', `child`.`' . $this->settings->parentIdColumnName . '` AS `' . $this->settings->parentIdColumnName . '`';
             $sql .= ', `child`.`' . $this->settings->leftColumnName . '` AS `' . $this->settings->leftColumnName . '`';
@@ -30,7 +31,7 @@ class MariaDB extends MySql
         $sql .= $this->addAdditionalColumns($options);
         $sql .= ' FROM `' . $this->settings->tableName . '` AS `parent`';
 
-        if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
+        if ($joinChild) {
             // if there is filter or search, there must be inner join to select all of filtered children.
             $sql .= ' INNER JOIN `' . $this->settings->tableName . '` AS `child`';
             $sql .= ' ON `child`.`' . $this->settings->leftColumnName . '` BETWEEN `parent`.`' . $this->settings->leftColumnName . '` AND `parent`.`' . $this->settings->rightColumnName . '`';
@@ -62,11 +63,12 @@ class MariaDB extends MySql
 
     public function selectLimited(Support\Options $options) : array
     {
+        $joinChild = $this->canJoinChild($options);
         $sql = 'SELECT';
         $sql .= ' `parent`.`' . $this->settings->idColumnName . '` AS p_cid';
         $sql .= ', `parent`.`' . $this->settings->parentIdColumnName . '` AS p_pid';
         $sql .= ', `parent`.`' . $this->settings->leftColumnName . '` AS p_lf';
-        if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
+        if ($joinChild) {
             $sql .= ', `child`.`' . $this->settings->idColumnName . '` AS `' . $this->settings->idColumnName . '`';
             $sql .= ', `child`.`' . $this->settings->parentIdColumnName . '` AS `' . $this->settings->parentIdColumnName . '`';
             $sql .= ', `child`.`' . $this->settings->leftColumnName . '` AS `' . $this->settings->leftColumnName . '`';
@@ -77,7 +79,7 @@ class MariaDB extends MySql
         $sql .= $this->addAdditionalColumns($options);
         $sql .= ' FROM `' . $this->settings->tableName . '` AS `parent`';
 
-        if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
+        if ($joinChild) {
             // if there is filter or search, there must be inner join to select all of filtered children.
             $sql .= ' INNER JOIN `' . $this->settings->tableName . '` AS `child`';
             $sql .= ' ON `child`.`' . $this->settings->leftColumnName . '` BETWEEN `parent`.`' . $this->settings->leftColumnName . '` AND `parent`.`' . $this->settings->rightColumnName . '`';

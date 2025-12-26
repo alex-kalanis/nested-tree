@@ -119,13 +119,14 @@ class MySql extends PDO
      */
     public function selectCount(Support\Options $options) : int
     {
+        $joinChild = $this->canJoinChild($options);
         $sql = 'SELECT ';
         $sql .= ' ANY_VALUE(`parent`.`' . $this->settings->idColumnName . '`)';
         $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->parentIdColumnName . '`)';
         if ($this->settings->softDelete) {
             $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->softDelete->columnName . '`)';
         }
-        if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
+        if ($joinChild) {
             $sql .= ', ANY_VALUE(`child`.`' . $this->settings->idColumnName . '`) AS `' . $this->settings->idColumnName . '`';
             $sql .= ', ANY_VALUE(`child`.`' . $this->settings->parentIdColumnName . '`) AS `' . $this->settings->parentIdColumnName . '`';
             $sql .= ', ANY_VALUE(`child`.`' . $this->settings->leftColumnName . '`) AS `' . $this->settings->leftColumnName . '`';
@@ -133,7 +134,7 @@ class MySql extends PDO
         $sql .= $this->addAdditionalColumns($options);
         $sql .= ' FROM `' . $this->settings->tableName . '` AS `parent`';
 
-        if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
+        if ($joinChild) {
             // if there is filter or search, there must be inner join to select all of filtered children.
             $sql .= ' INNER JOIN `' . $this->settings->tableName . '` AS `child`';
             $sql .= ' ON `child`.`' . $this->settings->leftColumnName . '` BETWEEN `parent`.`' . $this->settings->leftColumnName . '` AND `parent`.`' . $this->settings->rightColumnName . '`';
@@ -166,11 +167,12 @@ class MySql extends PDO
 
     public function selectLimited(Support\Options $options) : array
     {
+        $joinChild = $this->canJoinChild($options);
         $sql = 'SELECT';
         $sql .= ' ANY_VALUE(`parent`.`' . $this->settings->idColumnName . '`)';
         $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->parentIdColumnName . '`)';
         $sql .= ', ANY_VALUE(`parent`.`' . $this->settings->leftColumnName . '`)';
-        if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
+        if ($joinChild) {
             $sql .= ', ANY_VALUE(`child`.`' . $this->settings->idColumnName . '`) AS `' . $this->settings->idColumnName . '`';
             $sql .= ', ANY_VALUE(`child`.`' . $this->settings->parentIdColumnName . '`) AS `' . $this->settings->parentIdColumnName . '`';
             $sql .= ', ANY_VALUE(`child`.`' . $this->settings->leftColumnName . '`) AS `' . $this->settings->leftColumnName . '`';
@@ -181,7 +183,7 @@ class MySql extends PDO
         $sql .= $this->addAdditionalColumns($options);
         $sql .= ' FROM `' . $this->settings->tableName . '` AS `parent`';
 
-        if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
+        if ($joinChild) {
             // if there is filter or search, there must be inner join to select all of filtered children.
             $sql .= ' INNER JOIN `' . $this->settings->tableName . '` AS `child`';
             $sql .= ' ON `child`.`' . $this->settings->leftColumnName . '` BETWEEN `parent`.`' . $this->settings->leftColumnName . '` AND `parent`.`' . $this->settings->rightColumnName . '`';
@@ -693,7 +695,7 @@ class MySql extends PDO
     {
         $sql = '';
         if (!$options->noSortOrder) {
-            if (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild) {
+            if ($this->canJoinChild($options)) {
                 $sql .= ' GROUP BY `child`.`' . $this->settings->idColumnName . '`';
                 $order_by = '`child`.`' . $this->settings->leftColumnName . '` ASC';
             } elseif (!empty($options->filterIdBy)) {
@@ -708,5 +710,10 @@ class MySql extends PDO
         }
 
         return $sql;
+    }
+
+    protected function canJoinChild(Support\Options $options): bool
+    {
+        return (!is_null($options->currentId) || !is_null($options->parentId) || !empty($options->search) || $options->joinChild);
     }
 }
